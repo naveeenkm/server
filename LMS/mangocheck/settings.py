@@ -97,6 +97,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",  
     "http://localhost:8081",  
      "http://127.0.0.1:8080",
+     
     
 ]
 
@@ -147,17 +148,12 @@ SOCIAL_ACCOUNT_PROVIDER={
 }
 # Database
 DATABASES = {
-    
     'default': {
-        'ENGINE': 'djongo',
-        'NAME': 'test_mongo', 
-        'CLIENT': {
-            'host': 'mongodb+srv://kmnaveen777:naveen@atlas.eokhe.mongodb.net/',
-           
-            'authMechanism': 'SCRAM-SHA-1',
-        }
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
 
@@ -166,17 +162,7 @@ STATIC_URL = '/static/'
 
 
 
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
-
-# Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -234,17 +220,6 @@ SOCIAL_AUTH_GITHUB_SECRET = os.environ.get("SOCIAL_AUTH_GITHUB_SECRET")
 
 
 
-
-# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '505194174692-uj1sdt7mr1gpr9rqdkdbt0cko20lvg68.apps.googleusercontent.com'
-# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = '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'
-
-# SOCIAL_AUTH_FACEBOOK_KEY = '598257113091958'
-# SOCIAL_AUTH_FACEBOOK_SECRET = 'e1dc6f365c6ca0601d45ab890c026811'
-
-
-
-# SOCIAL_AUTH_GITHUB_KEY = 'Ov23liQrA0L7MNWHpBCt'
-# SOCIAL_AUTH_GITHUB_SECRET = '6f98a92aed078652978606d39f3e2ab5a0a2ce46'
 
 SOCIAL_AUTH_GITHUB_SCOPE = ['user:email']
 # LOGIN_URL = 'dashboard'

@@ -58,7 +58,7 @@ urlpatterns = [
     path('api/update_hr/<str:id>/', views.update_hr, name='update_hr'),      
     path('api/delete_hr/<str:id>/', views.archive_hr, name='archive_hr'),
     path('api/updatecourses/<str:course_id>/', views.update_course),
-    path('/api/updatetests/<str:test_id>/', views.edit_test, name='edit_test'),
+    path('api/updatetests/<str:test_id>/', views.edit_test, name='edit_test'),
     path('api/tests/<str:id>/', views.get_test_by_id1),
     path('api/updatetest/<str:id>/', views.update_test_by_id), 
     path('api/create_blog/', views.create_blog), 

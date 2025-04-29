@@ -1,0 +1,135 @@
+{% extends "dashbord.html" %}
+{% load static %}
+
+
+{% block title %}Teach on LMS{% endblock %}
+
+{% block extra_head %}
+<style>
+    .teaching-section {
+        display: block !important;
+    }
+</style>
+
+
+{% endblock %}
+{% block content %}
+
+
+<section class="hero">
+    <div class="container content-wrapper">
+        <div class="row align-items-center">
+            {% if is_teacher %}
+                <p>Welcome, Teacher {{ request.user.username }} {{ request.user.last_name }}</p>
+            {% else %}
+                <p>Welcome, {{ request.user.username }}</p>
+            {% endif %}
+
+            {% if is_teacher %}
+                <div class="col-md-5">
+                    <div id="hero-content" class="hero-content">
+                        <h1>Come teach with us</h1>
+                        <p>Become an instructor and change lives—including your own.</p>
+                        <a href="{% url 'courses'%}" class="cta-button">create courses</a>
+                        
+                    </div>
+                    
+                </div>
+            {% comment %} {% else %}
+                <div class="col-md-5">
+                    <div id="hero-content" class="hero-content">
+                        <h1>Learn. Grow. Succeed.</h1>
+                        <p>Discover new skills and unlock your potential with LMS.</p>
+                        <a href="{% url 'index' %}" class="cta-button">Get Started</a>
+                    </div>
+                </div> {% endcomment %}
+            {% endif %}
+            
+            <!-- Image (Right) -->
+            <div class="col-md-7 d-flex justify-content-end">
+                <div class="hero-image">
+                    <img src="{% static 'images/instructor.png' %}" alt="Instructor" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="{% url 'chat_page' %}" class="robot-btn" id="robotBtn">
+        <div class="robot-icon">
+            <div class="robot-head">
+                <div class="robot-eye left"></div>
+                <div class="robot-eye right"></div>
+            </div>
+            <div class="robot-body"></div>
+            <div class="robot-arm left"></div>
+            <div class="robot-arm right"></div>
+            <div class="robot-leg left"></div>
+            <div class="robot-leg right"></div>
+        </div>
+    </a>
+</section>
+<section id="teaching-section" class="teaching-section">
+    <div class="container content-wrapper">
+        <h2 class="text-center mb-5" style="color: var(--dark-purple);">Why Teach With Us</h2>
+        <div class="row">
+            <!-- Teaching Card 1 -->
+            <div class="col-md-4">
+                <div class="card teaching-card">
+                    <div class="card-body text-center p-4">
+                        <h1 class="display-4 mb-3" style="color: var(--primary-purple);">📊</h1>
+                        <h5 class="card-title">Reach Millions</h5>
+                        <p class="card-text">Share your expertise with students around the globe and build your online presence.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Teaching Card 2 -->
+            <div class="col-md-4">
+                <div class="card teaching-card">
+                    <div class="card-body text-center p-4">
+                        <h1 class="display-4 mb-3" style="color: var(--primary-purple);">💰</h1>
+                        <h5 class="card-title">Earn Revenue</h5>
+                        <p class="card-text">Get paid for your content with our revenue sharing model as you help others learn.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Teaching Card 3 -->
+            <div class="col-md-4">
+                <div class="card teaching-card">
+                    <div class="card-body text-center p-4">
+                        <h1 class="display-4 mb-3" style="color: var(--primary-purple);">🛠️</h1>
+                        <h5 class="card-title">Powerful Tools</h5>
+                        <p class="card-text">Access our course creation platform with video hosting, quizzes, and analytics.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Teaching Card 4 -->
+            <div class="col-md-6">
+                <div class="card teaching-card">
+                    <div class="card-body text-center p-4">
+                        <h1 class="display-4 mb-3" style="color: var(--primary-purple);">👥</h1>
+                        <h5 class="card-title">Community Support</h5>
+                        <p class="card-text">Join our instructor community for collaboration, networking and support.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Teaching Card 5 -->
+            <div class="col-md-6">
+                <div class="card teaching-card">
+                    <div class="card-body text-center p-4">
+                        <h1 class="display-4 mb-3" style="color: var(--primary-purple);">🚀</h1>
+                        <h5 class="card-title">Grow Your Brand</h5>
+                        <p class="card-text">Establish yourself as an authority in your field and expand your professional network.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'loginteacher' %}" class="cta-button">Become an Instructor</a>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

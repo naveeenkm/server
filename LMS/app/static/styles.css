@@ -1,0 +1,122 @@
+/* General Reset */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #ffffff;
+    color: #333;
+}
+
+/* Navbar Styling */
+.navbar {
+    padding: 25px 0;
+    background: linear-gradient(90deg, #660066, #993399);
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-size: 24px;
+    font-weight: bold;
+    color: white !important;
+}
+
+/* Navbar Links */
+.navbar-nav .nav-link {
+    font-weight: 500;
+    color: white !important;
+    margin-right: 15px;
+    transition: 0.3s;
+    padding-bottom: 5px;
+}
+
+/* Remove duplicate underline effect */
+.navbar-nav .nav-link:hover {
+    text-decoration: none;
+}
+
+/* Active link underline */
+.navbar-nav .nav-link.active {
+    border-bottom: 2px solid white;
+}
+/* Ensure content has left & right padding */
+.content-wrapper {
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+
+/* Signup Button */
+.signup {
+    background-color: white;
+    color: #660066;
+    padding: 8px 16px;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.signup:hover {
+    background-color: #993399;
+    color: white;
+}
+
+/* Hero Section */
+.hero {
+    padding: 80px 0;
+    background-color: #ffffff;
+    text-align: center;
+}
+
+/* Hero Content */
+.hero-content h1 {
+    font-size: 36px;
+    font-weight: bold;
+    color: #333;
+}
+
+.hero-content p {
+    font-size: 18px;
+    margin-bottom: 20px;
+    color: #555;
+}
+.hero-content {
+    
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;/* Align text to the left */
+}
+
+/* CTA Button */
+.cta-button {
+    background-color: #660066;
+    color: white;
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 5px;
+    display: inline-block;
+    transition: 0.3s;
+}
+
+.cta-button:hover {
+    background-color: #993399;
+}
+
+/* Hero Image */
+.hero .row {
+    display: flex;
+    align-items: center;
+   
+}
+
+
+
+.hero-image img {
+    max-width: 100%;
+    height: auto;
+    width: 450px;
+    margin-right: 50;
+    margin-right: 0;
+    display: block;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+}

@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teacher Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    :root {
+      --primary-color: #3498db;
+      --sidebar-width: 250px;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s ease;
+    }
+
+    body {
+      display: flex;
+      min-height: 100vh;
+      background-color: #f5f7fa;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      background-color: #2c3e50;
+      color: white;
+      height: 100vh;
+      position: fixed;
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-header h1 {
+      font-size: 1.5rem;
+    }
+
+    .nav-links {
+      list-style: none;
+      padding: 20px 0;
+    }
+
+    .nav-link {
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-link i {
+      margin-right: 10px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .account-section {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      padding: 20px;
+      position: relative;
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+
+    .card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 20px;
+      transition: var(--transition);
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .add-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border: 2px dashed #ccc;
+      cursor: pointer;
+      min-height: 200px;
+    }
+
+    .add-card i {
+      font-size: 2rem;
+      margin-bottom: 10px;
+      color: #ccc;
+    }
+
+    .course-card h3 {
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+    }
+
+    .course-meta {
+      color: #777;
+      margin-bottom: 10px;
+      font-size: 0.9rem;
+    }
+
+    .course-description {
+      margin-bottom: 15px;
+    }
+
+    .course-tag {
+      display: inline-block;
+      background-color: #e3f2fd;
+      color: #2196f3;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+    }
+
+    .performance-card {
+      position: relative;
+      padding-bottom: 40px;
+    }
+
+    .performance-data {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+    }
+
+    .performance-stat {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--primary-color);
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: #777;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background-color: #eee;
+      border-radius: 4px;
+      margin-top: 15px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background-color: var(--primary-color);
+    }
+
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      visibility: hidden;
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .modal-overlay.active {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .modal {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      width: 100%;
+      max-width: 600px;
+      transition: var(--transition);
+      transform: translateY(-20px);
+    }
+
+    .modal-overlay.active .modal {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      padding: 15px 20px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .modal-footer {
+      padding: 15px 20px;
+      border-top: 1px solid #eee;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+    select {
+        width: 100%;
+        max-height: 200px;
+        overflow-y: auto;
+      }
+
+    /* Account Section Styles */
+/* Account Section Styles */
+.account-card {
+    max-width: 700px; /* Slightly increased width */
+    margin: 0 auto;
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    {% comment %} padding: 20px; {% endcomment %}
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+  }
+  
+  .account-header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .account-avatar img {
+    width: 100px; /* Slightly larger avatar */
+    height: 100px;
+    border-radius: 50%;
+    border: 2px solid #e0e0e0;
+  }
+  
+  .account-name {
+    font-size: 1.25rem;
+    margin: 10px 0 5px;
+    color: #2c3e50;
+  }
+  
+  .account-email {
+    font-size: 0.9rem;
+    color: #777;
+  }
+  
+  .account-details {
+    margin: 20px 0;
+  }
+  
+  .detail-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+  }
+  
+  .detail-item i {
+    width: 20px;
+    color: #3498db;
+    margin-right: 10px;
+  }
+  
+  .detail-label {
+    color: #777;
+    margin-right: 8px;
+  }
+  
+  .detail-value {
+    color: #2c3e50;
+    font-weight: 500;
+  }
+  
+  .account-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  
+  .btn-edit-profile,
+  .btn-change-password {
+    flex: 1;
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background-color: #f9f9f9;
+    color: #2c3e50;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .btn-edit-profile:hover,
+  .btn-change-password:hover {
+    background-color: #e0e0e0;
+  }
+  
+  /* Recent Activity Styles */
+  .recent-activity {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+  }
+  
+  .recent-activity h4 {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    color: #2c3e50;
+  }
+  
+  .recent-activity ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .recent-activity li {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    color: #555;
+  }
+  
+  .recent-activity li i {
+    margin-right: 10px;
+    color: #3498db;
+  }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    .btn {
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: none;
+      transition: var(--transition);
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    .btn-secondary {
+      background-color: #e0e0e0;
+      color: #333;
+      margin-right: 10px;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    .account-details {
+      padding: 20px;
+    }
+
+    .account-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background-color: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 2rem;
+      color: #777;
+    }
+
+    .account-info {
+      text-align: center;
+    }
+
+    .account-name {
+      font-size: 1.5rem;
+      margin-bottom: 5px;
+    }
+
+    .account-email {
+      color: #777;
+      margin-bottom: 20px;
+    }
+
+    .assessment-options {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    .assessment-option {
+      flex: 1;
+      padding: 20px;
+      background-color: white;
+      box-shadow: var(--shadow);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0 10px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .assessment-option:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .assessment-option i {
+      font-size: 2rem;
+      margin-bottom: 15px;
+      color: var(--primary-color);
+    }
+
+    .resource-selector {
+      margin-bottom: 20px;
+    }
+
+    .resource-card {
+      display: flex;
+      align-items: center;
+    }
+
+    .resource-icon {
+      width: 50px;
+      height: 50px;
+      background-color: #e3f2fd;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      margin-right: 15px;
+    }
+
+    .resource-details {
+      flex: 1;
+    }
+
+    .resource-actions {
+      display: flex;
+      margin-top: 10px;
+    }
+
+    .resource-actions .btn {
+      margin-right: 10px;
+      font-size: 0.8rem;
+      padding: 5px 10px;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        margin-left: 0;
+        padding-left: calc(var(--sidebar-width) + 20px);
+      }
+      
+      .card-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .assessment-options {
+        flex-direction: column;
+      }
+      
+      .assessment-option {
+        margin: 10px 0;
+      }
+    }
+    .assessment-course-card {
+        position: relative;
+        padding-bottom: 60px;
+      }
+      
+      .assessment-course-card .btn {
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        right: 20px;
+      }
+      
+      #assessment-modal .assessment-options {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+      }
+      
+      #assessment-modal .assessment-option {
+        flex: 1;
+        padding: 20px;
+        background-color: white;
+        box-shadow: var(--shadow);
+15px        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 0 10px;
+        cursor: pointer;
+        transition: var(--transition);
+      }
+      
+      #assessment-modal .assessment-option:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+      }
+      
+      #assessment-modal .assessment-option i {
+        font-size: 2rem;
+        margin-bottom: 15px;
+        color: var(--primary-color);
+      }
+      
+      /* View Assessment Section Styles */
+      .back-navigation {
+        margin-bottom: 20px;
+      }
+      
+      .btn-back {
+        background: none;
+        border: none;
+        color: var(--primary-color);
+        font-size: 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: var(--transition);
+      }
+      
+      .btn-back i {
+        margin-right: 8px;
+      }
+      
+      .btn-back:hover {
+        opacity: 0.8;
+      }
+      
+      .assessment-details-card {
+        padding: 25px;
+      }
+      
+      .assessment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+      }
+      
+      .assessment-type {
+        background-color: #e3f2fd;
+        color: var(--primary-color);
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+      }
+      
+      .assessment-info {
+        margin-bottom: 25px;
+      }
+      
+      .info-row {
+        display: flex;
+        margin-bottom: 10px;
+      }
+      
+      .info-label {
+        font-weight: 500;
+        width: 100px;
+      }
+      
+      .assessment-questions {
+        margin-bottom: 25px;
+      }
+      
+      .question-list {
+        margin-top: 15px;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        padding: 15px;
+      }
+      
+      .question-item {
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+      }
+      
+      .question-item:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+      }
+      
+      .question-number {
+        font-weight: 500;
+        margin-right: 10px;
+      }
+      
+      .assessment-actions {
+        display: flex;
+      }
+      
+      .assessment-actions .btn {
+        margin-right: 10px;
+      }
+      
+      @media (max-width: 768px) {
+        #assessment-modal .assessment-options {
+          flex-direction: column;
+        }
+        
+        #assessment-modal .assessment-option {
+          margin: 10px 0;
+        }
+        
+        .assessment-header {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        
+        .assessment-type {
+          margin-top: 10px;
+        }
+        
+        .assessment-actions {
+          flex-direction: column;
+        }
+        
+        .assessment-actions .btn {
+          margin-right: 0;
+          margin-bottom: 10px;
+          width: 100%;
+        }
+      }
+      
+      @media (max-width: 768px) {
+        #assessment-modal .assessment-options {
+          flex-direction: column;
+        }
+        
+        #assessment-modal .assessment-option {
+          margin: 10px 0;
+        }
+      }
+
+
+      .search-bar {
+        margin-bottom: 20px;
+        position: relative;
+        max-width: 400px;
+    }
+    
+    .search-bar input {
+        width: 100%;
+        padding: 10px 40px 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+    
+    .search-bar i {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #777;
+        cursor: pointer;
+    }
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h1>TeacherPortal</h1>
+    </div>
+    <ul class="nav-links">
+      <li class="nav-link active" data-section="courses">
+        <i class="fas fa-book"></i> Your Courses
+      </li>
+      <li class="nav-link" data-section="performance">
+        <i class="fas fa-chart-bar"></i> Performance
+      </li>
+      <li class="nav-link" data-section="resources">
+        <i class="fas fa-folder"></i> Resources
+      </li>
+      <li class="nav-link" data-section="assessments">
+        <i class="fas fa-tasks"></i> Assessments
+      </li>
+    </ul>
+    <div class="account-section">
+      <div class="nav-link" data-section="account">
+        <i class="fas fa-user"></i> Account
+      </div>
+      <div class="nav-link">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content" id="main-content">
+    <!-- Search Bar -->
+
+    <!-- Courses Section -->
+    <section class="section active" id="courses-section">
+      <div class="search-bar">
+        <input type="text" id="course-search" placeholder="Search courses..." />
+        <i class="fas fa-search"></i>
+      </div>
+        {% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+{% endif %}
+
+      <h2>Your Courses</h2>
+      <div class="card-grid">
+        <div class="card add-card" id="add-course-btn">
+          <i class="fas fa-plus"></i>
+          <p>Add New Course</p>
+        </div>
+        {% for course in assigned_courses %}
+        <div class="card course-card">
+          <h3>{{ course.course_name }}</h3>
+          <p class="course-meta">{{ course.course_type }} • {{ course.course_duration }}</p>
+          <p class="course-description">{{ course.course_description }}.</p>
+          <span class="course-tag">{{ course.course_category }}</span>
+        </div>
+
+        {% endfor %}
+        
+        <div class="card course-card">
+          <h3>Advanced English Literature</h3>
+          <p class="course-meta">English • 12 weeks</p>
+          <p class="course-description">Analysis of classic literature with focus on 19th century works.</p>
+          <span class="course-tag">Humanities</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Performance Section -->
+    <section class="section" id="performance-section">
+      <div class="search-bar">
+        <input type="text" id="course-search" placeholder="Search courses..." />
+        <i class="fas fa-search"></i>
+      </div>
+      <h2>Student Performance</h2>
+      <div class="card-grid">
+        <div class="card performance-card">
+          <h3>Introduction to Mathematics</h3>
+          <div class="performance-data">
+            <div class="performance-stat">
+              <div class="stat-value">85%</div>
+              <div class="stat-label">Average Score</div>
+            </div>
+            <div class="performance-stat">
+              <div class="stat-value">24/30</div>
+              <div class="stat-label">Completion Rate</div>
+            </div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 80%;"></div>
+          </div>
+        </div>
+        
+        <div class="card performance-card">
+          <h3>Advanced English Literature</h3>
+          <div class="performance-data">
+            <div class="performance-stat">
+              <div class="stat-value">78%</div>
+              <div class="stat-label">Average Score</div>
+            </div>
+            <div class="performance-stat">
+              <div class="stat-value">18/25</div>
+              <div class="stat-label">Completion Rate</div>
+            </div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 72%;"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Assessments Section -->
+    
+
+
+    <section class="section" id="assessments-section">
+      <div class="search-bar">
+        <input type="text" id="course-search" placeholder="Search courses..." />
+        <i class="fas fa-search"></i>
+      </div>
+        <h2>Create Assessments</h2>
+        <div class="card-grid assessment-cards">
+          <!-- Course card 1 -->
+          <div class="card course-card assessment-course-card">
+            <h3>Introduction to Mathematics</h3>
+            <p class="course-meta">Math • 8 weeks</p>
+            <p class="course-description">Basic math concepts for beginners.</p>
+            <span class="course-tag">STEM</span>
+            <button class="btn btn-primary add-assessment-btn" data-course="Introduction to Mathematics" data-id="math101">Add Assessment</button>
+          </div>
+          
+          <!-- Course card 2 -->
+          <div class="card course-card assessment-course-card">
+            <h3>Advanced English Literature</h3>
+            <p class="course-meta">English • 12 weeks</p>
+            <p class="course-description">Analysis of classic literature with focus on 19th century works.</p>
+            <span class="course-tag">Humanities</span>
+            <button class="btn btn-primary add-assessment-btn" data-course="Advanced English Literature" data-id="eng202">Add Assessment</button>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Individual Assessment View Section -->
+      <section class="section" id="view-assessment-section">
+        <div class="back-navigation">
+          <button class="btn-back" id="back-to-assessments">
+            <i class="fas fa-arrow-left"></i> Back to Assessments
+          </button>
+        </div>
+        <h2>Assessment Details: <span id="assessment-title"></span></h2>
+        
+        <div class="card assessment-details-card">
+          <div class="assessment-header">
+            <h3 id="assessment-course-name"></h3>
+            <span class="assessment-type" id="assessment-type-badge"></span>
+          </div>
+          
+          <div class="assessment-info">
+            <div class="info-row">
+              <span class="info-label">Created:</span>
+              <span class="info-value" id="assessment-created-date">March 9, 2025</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Questions:</span>
+              <span class="info-value" id="assessment-question-count">15</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Time limit:</span>
+              <span class="info-value" id="assessment-time-limit">60 minutes</span>
+            </div>
+          </div>
+          
+          <div class="assessment-questions">
+            <h4>Questions Preview</h4>
+            <div class="question-list" id="question-list">
+              <!-- Questions will be populated here -->
+            </div>
+          </div>
+          
+          <div class="assessment-actions">
+            <button class="btn btn-primary" id="edit-assessment">Edit Assessment</button>
+            
+            <button class="btn btn-secondary" id="assign-assessment">Assign to Students</button>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Assessment Creation Modal -->
+      <div class="modal-overlay" id="assessment-modal">
+        <div class="modal">
+          <div class="modal-header">
+            <h3>Create Assessment for <span id="selected-course-name"></span></h3>
+            <i class="fas fa-times" id="close-assessment-modal"></i>
+          </div>
+          <div class="modal-body">
+            <div class="assessment-options">
+              <div class="assessment-option" id="manual-assessment">
+                <i class="fas fa-edit"></i>
+                <h3>Create Manually</h3>
+                <p>Build an assessment from scratch</p>
+              </div>
+              
+              <div class="assessment-option" id="ai-assessment">
+                <i class="fas fa-robot"></i>
+                <h3>Generate with AI</h3>
+                <p>Let AI create an assessment for you</p>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" id="cancel-assessment">Cancel</button>
+          </div>
+        </div>
+      </div>
+      
+
+    <!-- Resources Section -->
+    <section class="section" id="resources-section">
+      <div class="search-bar">
+        <input type="text" id="course-search" placeholder="Search courses..." />
+        <i class="fas fa-search"></i>
+      </div>
+      <h2>Course Resources</h2>
+      <div class="resource-selector">
+        <label for="resource-course-select">Select Course:</label>
+        <select id="resource-course-select">
+          <option value="">Choose a course</option>
+          <option value="1">Introduction to Mathematics</option>
+          <option value="2">Advanced English Literature</option>
+        </select>
+      </div>
+      
+      <div class="card-grid">
+        <div class="card add-card">
+          <i class="fas fa-plus"></i>
+          <p>Add New Resource</p>
+        </div>
+        
+        <div class="card resource-card">
+          <div class="resource-icon">
+            <i class="fas fa-file-pdf"></i>
+          </div>
+          <div class="resource-details">
+            <h3>Course Syllabus</h3>
+            <p>Complete course outline and requirements</p>
+            <div class="resource-actions">
+              <button class="btn btn-primary">View</button>
+              <button class="btn btn-secondary">Share</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card resource-card">
+          <div class="resource-icon">
+            <i class="fas fa-file-video"></i>
+          </div>
+          <div class="resource-details">
+            <h3>Lecture Recordings</h3>
+            <p>Video recordings of all lectures</p>
+            <div class="resource-actions">
+              <button class="btn btn-primary">View</button>
+              <button class="btn btn-secondary">Share</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Account Section -->
+    <!-- Account Section -->
+<section class="section" id="account-section">
+    <h2>Account Details</h2>
+    <div class="card account-card">
+      <!-- Account Header -->
+      <div class="account-header">
+        <div class="account-avatar">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="100" height="100">
+                <!-- Outer circle (background) -->
+                <circle cx="12" cy="12" r="12" fill="lightgray"/>  
+                <!-- Head -->
+                <circle cx="12" cy="8" r="4" fill="gray"/>  
+                <!-- Body -->
+                <path d="M6 20c0-4 2.5-7 6-7s6 3 6 7" fill="gray"/>  
+            </svg>
+        </div>
+        <h3 class="account-name">{{user_data.full_name}}</h3>
+        <p class="account-email">{{user_data.email}}</p>
+      </div>
+  
+      <!-- Account Details -->
+      <div class="account-details">
+        <div class="detail-item">
+          <i class="fas fa-id-card"></i>
+          <span class="detail-label">Teacher ID:</span>
+          <span class="detail-value">{{user_data.id}}</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-building"></i>
+          <span class="detail-label">Department:</span>
+          <span class="detail-value">Mathematics</span>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-calendar-alt"></i>
+          <span class="detail-label">Joined On:</span>
+          <span class="detail-value">January 15, 2023</span>
+        </div>
+      </div>
+  
+      <!-- Account Actions -->
+      <div class="account-actions">
+        <button class="btn btn-edit-profile">
+          <i class="fas fa-edit"></i> Edit Profile
+        </button>
+        <button class="btn btn-change-password">
+          <i class="fas fa-lock"></i> Change Password
+        </button>
+      </div>
+  
+      <!-- Recent Activity -->
+      <div class="recent-activity">
+        <h4>Recent Activity</h4>
+        <ul>
+          <li>
+            <i class="fas fa-book"></i>
+            Created a new course: <strong>Introduction to Algebra</strong>
+          </li>
+          <li>
+            <i class="fas fa-file-upload"></i>
+            Uploaded a new resource: <strong>Lecture Notes</strong>
+          </li>
+          <li>
+            <i class="fas fa-chart-line"></i>
+            Updated performance metrics for <strong>Advanced Calculus</strong>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+  </div>
+
+  <!-- Add Course Modal -->
+  <div class="modal-overlay" id="course-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Add New Course</h3>
+        <i class="fas fa-times" id="close-modal"></i>
+      </div>
+      
+      <form action="{% url 'add_course' %}" method="POST">
+        {% csrf_token %}
+        <input type="hidden" name="teacher_id" value="{{ user_data.id }}">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="course-name">Course Name</label>
+            <input type="text" id="course-name" name="course_name" placeholder="Enter course name" required>
+          </div>
+
+          <div class="form-group">
+            <label for="course-type">Course Type</label>
+            <input type="text" id="course-type" name="course_type" placeholder="e.g. Math, Science, Language" required>
+          </div>
+
+          <div class="form-group">
+            <label for="course-description">Course Description</label>
+            <textarea id="course-description" name="course_description" rows="2" placeholder="Describe your course" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="course-category">Course Category</label>
+            <select id="course-category" name="course_category" required>
+              <option value="">Choose a category</option>
+              <option value="Development">Development</option>
+              <option value="Business">Business</option>
+              <option value="Finance & Accounting">Finance & Accounting</option>
+              <option value="IT & Software">IT & Software</option>
+              <option value="Office Productivity">Office Productivity</option>
+              <option value="Personal Development">Personal Development</option>
+              <option value="Design">Design</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Lifestyle">Lifestyle</option>
+              <option value="Photography & Video">Photography & Video</option>
+              <option value="Health & Fitness">Health & Fitness</option>
+              <option value="Music">Music</option>
+              <option value="Teaching & Academics">Teaching & Academics</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="course-duration">Approximate Duration</label>
+            <input type="text" id="course-duration" name="course_duration" placeholder="e.g. 8 weeks, 3 months" required>
+         
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="cancel-course">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Course</button>
+        </div>
+      </form>
+    </div>
+</div>
+
+
+  <script>
+
+    // Search functionality for courses
+const courseSearch = document.getElementById('course-search');
+const courseCards = document.querySelectorAll('.course-card');
+
+courseSearch.addEventListener('input', function () {
+    const searchTerm = this.value.toLowerCase();
+
+    courseCards.forEach(card => {
+        const courseName = card.querySelector('h3').textContent.toLowerCase();
+        const courseDescription = card.querySelector('.course-description').textContent.toLowerCase();
+        const courseCategory = card.querySelector('.course-tag').textContent.toLowerCase();
+
+        if (courseName.includes(searchTerm)) {
+            card.style.display = 'block';
+        } else if (courseDescription.includes(searchTerm)) {
+            card.style.display = 'block';
+        } else if (courseCategory.includes(searchTerm)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+});
+
+    setTimeout(function() {
+        let alerts = document.querySelectorAll(".alert");
+        alerts.forEach(alert => alert.style.display = "none");
+    }, 3000);
+    // DOM Elements
+    const navLinks = document.querySelectorAll('.nav-link');
+    const sections = document.querySelectorAll('.section');
+    const courseModal = document.getElementById('course-modal');
+    const addCourseBtn = document.getElementById('add-course-btn');
+    const closeModalBtn = document.getElementById('close-modal');
+    const cancelCourseBtn = document.getElementById('cancel-course');
+    
+
+    // Navigation
+    navLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        const sectionId = this.getAttribute('data-section');
+        
+        // Update active nav link
+        navLinks.forEach(item => item.classList.remove('active'));
+        this.classList.add('active');
+        
+        // Show active section
+        sections.forEach(section => {
+          section.classList.remove('active');
+          if (section.id === `${sectionId}-section`) {
+            section.classList.add('active');
+          }
+        });
+      });
+    });
+
+    // Modal control
+    addCourseBtn.addEventListener('click', () => {
+      courseModal.classList.add('active');
+    });
+
+    closeModalBtn.addEventListener('click', () => {
+      courseModal.classList.remove('active');
+    });
+
+    cancelCourseBtn.addEventListener('click', () => {
+      courseModal.classList.remove('active');
+    });
+
+    
+    // Close modal when clicking outside
+    courseModal.addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.classList.remove('active');
+      }
+    });
+
+    const addAssessmentBtns = document.querySelectorAll('.add-assessment-btn');
+  const assessmentModal = document.getElementById('assessment-modal');
+  const selectedCourseName = document.getElementById('selected-course-name');
+  const closeAssessmentModal = document.getElementById('close-assessment-modal');
+  const cancelAssessmentBtn = document.getElementById('cancel-assessment');
+  const manualAssessmentBtn = document.getElementById('manual-assessment');
+  const aiAssessmentBtn = document.getElementById('ai-assessment');
+  const backToAssessmentsBtn = document.getElementById('back-to-assessments');
+  const assessmentSection = document.getElementById('assessments-section');
+  const viewAssessmentSection = document.getElementById('view-assessment-section');
+  const assessmentTitle = document.getElementById('assessment-title');
+  const assessmentCourseName = document.getElementById('assessment-course-name');
+  const assessmentTypeBadge = document.getElementById('assessment-type-badge');
+  const questionList = document.getElementById('question-list');
+    // Open assessment modal when Add Assessment button is clicked
+    // Open assessment modal when Add Assessment button is clicked
+addAssessmentBtns.forEach(btn => {
+    btn.addEventListener('click', function() {
+      const courseId = this.getAttribute('data-id');
+      const courseName = this.getAttribute('data-course');
+      
+      // Check if assessment already exists
+      if (assessments[courseId].exists) {
+        // Show the existing assessment without opening the modal
+        showAssessment(courseId, courseName);
+      } else {
+        // Show modal to create new assessment
+        selectedCourseName.textContent = courseName;
+        assessmentModal.classList.add('active');
+        
+        // Store the course ID for later use
+        assessmentModal.setAttribute('data-course-id', courseId);
+      }
+    });
+  });
+    
+    // Close assessment modal
+    closeAssessmentModal.addEventListener('click', () => {
+      assessmentModal.classList.remove('active');
+    });
+    
+    cancelAssessmentBtn.addEventListener('click', () => {
+      assessmentModal.classList.remove('active');
+    });
+    
+    // Handle assessment option selections
+    manualAssessmentBtn.addEventListener('click', () => {
+      const courseName = selectedCourseName.textContent;
+      alert(`Creating manual assessment for ${courseName}`);
+      // Here you would redirect to or open a form for manual assessment creation
+      assessmentModal.classList.remove('active');
+    });
+    
+    aiAssessmentBtn.addEventListener('click', () => {
+      const courseName = selectedCourseName.textContent;
+      alert(`Generating AI assessment for ${courseName}`);
+      
+      assessmentModal.classList.remove('active');
+    });
+    
+    // Close modal when clicking outside
+    assessmentModal.addEventListener('click', function(e) {
+      if (e.target === this) {
+        this.classList.remove('active');
+      }
+    });
+    
+  
+  // Sample questions for demo purposes
+  const sampleQuestions = {
+    'math101': [
+      "If x² + 3x + 2 = 0, what are the values of x?",
+      "Solve the equation: 2(3x - 4) = 5x - 8",
+      "Find the derivative of f(x) = x³ - 4x² + 5x - 7"
+    ],
+    'eng202': [
+      "Analyze the main themes in Jane Austen's 'Pride and Prejudice'",
+      "Compare and contrast the writing styles of Shakespeare and Marlowe",
+      "Discuss the significance of symbolism in 'The Great Gatsby'"
+    ]
+  };
+  
+  // Store assessment data
+  // Store assessment data
+const assessments = {
+  'math101': { exists: false, type: '', title: '' },
+  'eng202': { exists: false, type: '', title: '' }
+};
+
+// Open assessment modal when Add Assessment button is clicked
+addAssessmentBtns.forEach(btn => {
+  btn.addEventListener('click', function() {
+    const courseId = this.getAttribute('data-id');
+    const courseName = this.getAttribute('data-course');
+
+    // Check if assessment already exists
+    if (assessments[courseId].exists) {
+      // Show the existing assessment
+      showAssessment(courseId, courseName);
+    } else {
+      // Show modal to create new assessment
+      selectedCourseName.textContent = courseName;
+      assessmentModal.classList.add('active');
+
+      // Store the course ID for later use
+      assessmentModal.setAttribute('data-course-id', courseId);
+    }
+  });
+});
+
+// Function to show assessment details
+function showAssessment(courseId, courseName) {
+  // Hide assessments section and show view section
+  assessmentSection.classList.remove('active');
+  viewAssessmentSection.classList.add('active');
+
+  // Update assessment details
+  assessmentTitle.textContent = assessments[courseId].title;
+  assessmentCourseName.textContent = courseName;
+  assessmentTypeBadge.textContent = assessments[courseId].type;
+
+  // Add sample questions
+  questionList.innerHTML = '';
+  const questions = sampleQuestions[courseId];
+  questions.forEach((question, index) => {
+    const questionItem = document.createElement('div');
+    questionItem.className = 'question-item';
+    questionItem.innerHTML = `
+      <span class="question-number">Q${index + 1}:</span>
+      <span class="question-text">${question}</span>
+    `;
+    questionList.appendChild(questionItem);
+  });
+}
+
+// Handle back navigation
+backToAssessmentsBtn.addEventListener('click', () => {
+  viewAssessmentSection.classList.remove('active');
+  assessmentSection.classList.add('active');
+});
+
+// Close assessment modal
+closeAssessmentModal.addEventListener('click', () => {
+  assessmentModal.classList.remove('active');
+});
+
+cancelAssessmentBtn.addEventListener('click', () => {
+  assessmentModal.classList.remove('active');
+});
+
+// Handle assessment option selections
+manualAssessmentBtn.addEventListener('click', () => {
+  const courseName = selectedCourseName.textContent;
+  const courseId = assessmentModal.getAttribute('data-course-id');
+
+  // Create assessment
+  createAssessment(courseId, courseName, 'Manual');
+  assessmentModal.classList.remove('active');
+});
+
+aiAssessmentBtn.addEventListener('click', () => {
+  const courseName = selectedCourseName.textContent;
+  const courseId = assessmentModal.getAttribute('data-course-id');
+
+  // Create assessment
+  createAssessment(courseId, courseName, 'AI Generated');
+  assessmentModal.classList.remove('active');
+});
+
+// Create assessment and update button
+function createAssessment(courseId, courseName, type) {
+  // Update assessment data
+  assessments[courseId].exists = true;
+  assessments[courseId].type = type;
+  assessments[courseId].title = `${courseName} ${type} Assessment`;
+
+  // Find the button for this course and change it
+  const button = document.querySelector(`.add-assessment-btn[data-id="${courseId}"]`);
+  button.textContent = 'View Assessment';
+  button.classList.remove('btn-primary');
+  button.classList.add('btn-secondary');
+
+  // Show the assessment immediately after creation
+  showAssessment(courseId, courseName);
+}
+
+// Close modal when clicking outside
+assessmentModal.addEventListener('click', function(e) {
+  if (e.target === this) {
+    this.classList.remove('active');
+  }
+});
+
+
+  </script>
+</body>
+</html>

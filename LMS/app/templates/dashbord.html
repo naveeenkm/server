@@ -1,0 +1,672 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Online Learning System{% endblock %}</title>
+    {% block extra_head %}{% endblock %}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        :root {
+            --primary-purple: #8a2be2;
+            --light-purple: #e6d9f2;
+            --dark-purple: #4a148c;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+        }
+        
+        .content-wrapper {
+            padding: 0 50px; 
+        }
+        
+        {% comment %} .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: white;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            padding: 15px 0;
+            z-index: 1000;
+        } {% endcomment %}
+        
+        .navbar {
+            
+            background-color: white;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            padding: 15px 0;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary-purple);
+            font-size: 24px;
+        }
+        
+        .nav-link {
+            color: #333;
+            font-weight: 500;
+            margin: 0 10px;
+            transition: color 0.3s;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: var(--primary-purple);
+        }
+        
+ 
+        .hero {
+            padding: 100px 0;
+            background: linear-gradient(135deg, #f5f0ff 0%, #e6d9f2 100%);
+        }
+        
+        .hero-content h1 {
+            font-weight: 700;
+            color: var(--dark-purple);
+            margin-bottom: 20px;
+            font-size: 42px;
+        }
+        
+        .hero-content p {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        
+        /* Keeping your button style */
+        .cta-button {
+            display: inline-block;
+            padding: 12px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: 600;
+            transition: all 0.3s;
+            background-color: var(--primary-purple);
+            color: white;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            background-color: rgba(255, 255, 255, 0.9);
+  color: black;
+  backdrop-filter: blur(50px);
+        }
+        
+        .signup {
+            background-color: var(--primary-purple);
+            color: white;
+            padding: 8px 20px;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .signup:hover {
+            background-color: transparent;
+            color: black;
+        }
+        
+        /* Course cards */
+        .course-section {
+            padding: 70px 0;
+            display: none;
+        }
+        
+        .course-card {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 30px;
+            border: none;
+            background: linear-gradient(135deg, #f5f0ff 0%, #e6d9f2 100%);
+        }
+        
+        .course-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(138, 43, 226, 0.2);
+        }
+        
+        .card-img-top {
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .course-card .card-body {
+            padding: 20px;
+        }
+        
+        .course-card .card-title {
+            font-weight: 700;
+            color: var(--dark-purple);
+        }
+        
+        .course-card .card-text {
+            color: #555;
+            margin-bottom: 15px;
+        }
+        
+        /* Teaching cards */
+        .teaching-section {
+            padding: 70px 0;
+            display: none;
+        }
+        
+        .teaching-card {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin-bottom: 30px;
+            border: none;
+            background: linear-gradient(135deg, #f5f0ff 0%, #e6d9f2 100%);
+        }
+        
+        .teaching-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(138, 43, 226, 0.2);
+        }
+        
+        /* Footer */
+        footer {
+            background-color: #212121;
+            color: white;
+            padding: 50px 0 20px 0;
+        }
+        
+        footer h5 {
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #e6d9f2;
+        }
+        
+        footer ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        footer ul li {
+            margin-bottom: 10px;
+        }
+        
+        footer ul li a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        footer ul li a:hover {
+            color: var(--light-purple);
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid #444;
+            padding-top: 20px;
+            margin-top: 40px;
+        }
+        
+        .social-icons a {
+            color: white;
+            margin-right: 15px;
+            font-size: 18px;
+        }
+        .robot-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background-color: #3498db;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .robot-btn:hover {
+            background-color: #2980b9;
+            transform: scale(1.1);
+        }
+        
+        /* Robot icon styles */
+        .robot-icon {
+            width: 30px;
+            height: 35px;
+            position: relative;
+        }
+        
+        .robot-head {
+            width: 22px;
+            height: 16px;
+            background-color: white;
+            border-radius: 6px;
+            position: absolute;
+            top: 0;
+            left: 4px;
+        }
+        
+        .robot-eye {
+            width: 4px;
+            height: 4px;
+            background-color: #333;
+            border-radius: 50%;
+            position: absolute;
+            top: 5px;
+        }
+        
+        .robot-eye.left {
+            left: 6px;
+        }
+        
+        .robot-eye.right {
+            right: 6px;
+        }
+        
+        .robot-body {
+            width: 30px;
+            height: 20px;
+            background-color: white;
+            border-radius: 5px;
+            position: absolute;
+            top: 18px;
+            left: 0;
+        }
+        
+        .robot-arm {
+            width: 3px;
+            height: 12px;
+            background-color: white;
+            position: absolute;
+            top: 20px;
+        }
+        
+        .robot-arm.left {
+            left: -3px;
+        }
+        
+        .robot-arm.right {
+            right: -3px;
+        }
+        
+        .robot-leg {
+            width: 4px;
+            height: 8px;
+            background-color: white;
+            position: absolute;
+            top: 38px;
+        }
+        
+        .robot-leg.left {
+            left: 7px;
+        }
+        
+        .robot-leg.right {
+            right: 7px;
+        }
+        
+        /* Ripple effect for button click */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.7);
+            animation: ripple 0.6s linear;
+            transform: scale(0);
+        }
+        
+        @keyframes ripple {
+            to {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar - Keeping your existing structure -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container content-wrapper">
+        <a class="navbar-brand" href="#" onclick="changeContent('student')">LMS</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="#" onclick="changeContent('student')" id="student-tab">Explore</a></li>
+
+                {% if request.user.is_authenticated %}
+                    <li class="nav-item"><a class="nav-link" href="#">Profile</a></li>
+                    <li class="nav-item"><a class="btn signup" href="{% url 'logout' %}">Log out</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="#" onclick="changeContent('opportunity')" id="opportunity-tab">Opportunities</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#" onclick="changeContent('teach')" id="teach-tab">Teach on LMS</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'index' %}">Log in</a></li>
+                    <li class="nav-item">
+                        <a class="btn signup" href="{% url 'index' %}?signup=true">Sign Up</a>
+                    </li>
+                    
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+{% block content %}
+<section class="hero">
+    <div class="container content-wrapper">
+        <div class="row align-items-center">
+           
+            {% if user.is_authenticated %}
+            <div class="col-md-5">
+                <div id="hero-content" class="hero-content">
+                    <h1>Learn. Grow. Succeed.</h1>
+                    <p>Discover new skills and unlock your potential with LMS.</p>
+                    <a href="{% url 'assessment' %}" class="cta-button">Go to Courses</a>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-md-5">
+                <div id="hero-content" class="hero-content">
+                    <h1>Learn. Grow. Succeed.</h1>
+                    <p>Discover new skills and unlock your potential with LMS.</p>
+                    <a href="{% url 'index' %}" class="cta-button">Get Started</a>
+                </div>
+            </div>
+
+            {% endif %}
+            
+           
+            
+            <!-- Image (Right) -->
+            <div class="col-md-7 d-flex justify-content-end">
+                <div class="hero-image">
+                    <img src="{% static 'images/instructor.png' %}" alt="Instructor" class="img-fluid">
+                </div>
+            </div>
+        </div>
+    </div>
+    {% comment %} <a href="{% url 'chat_page' %}" class="robot-btn" id="robotBtn">
+        <div class="robot-icon">
+            <div class="robot-head">
+                <div class="robot-eye left"></div>
+                <div class="robot-eye right"></div>
+            </div>
+            <div class="robot-body"></div>
+            <div class="robot-arm left"></div>
+            <div class="robot-arm right"></div>
+            <div class="robot-leg left"></div>
+            <div class="robot-leg right"></div>
+        </div>
+    </a> {% endcomment %}
+</section>
+
+<section id="course-section" class="course-section">
+    <div class="container content-wrapper">
+        <h2 class="text-center mb-5" style="color: var(--dark-purple);">Explore Our Popular Courses</h2>
+        <div class="row">
+            <!-- Course Card 1 -->
+            <div class="col-md-4">
+                <div class="card course-card">
+                    <img src="/api/placeholder/400/200" alt="Web Development" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">Web Development Masterclass</h5>
+                        <p class="card-text">Learn HTML, CSS, JavaScript, React and build responsive websites from scratch.</p>
+                        <a href="#" class="cta-button">Enroll Now</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Course Card 2 -->
+            <div class="col-md-4">
+                <div class="card course-card">
+                    <img src="/api/placeholder/400/200" alt="Data Science" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">Data Science Fundamentals</h5>
+                        <p class="card-text">Master Python, data analysis, visualization and machine learning techniques.</p>
+                        <a href="#" class="cta-button">Enroll Now</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Course Card 3 -->
+            <div class="col-md-4">
+                <div class="card course-card">
+                    <img src="/api/placeholder/400/200" alt="Digital Marketing" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">Digital Marketing Strategy</h5>
+                        <p class="card-text">Learn SEO, social media marketing, content strategy and PPC advertising.</p>
+                        <a href="#" class="cta-button">Enroll Now</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Course Card 4 -->
+            <div class="col-md-4">
+                <div class="card course-card">
+                    <img src="/api/placeholder/400/200" alt="Graphic Design" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">Graphic Design Essentials</h5>
+                        <p class="card-text">Master Adobe Creative Suite and learn principles of effective design.</p>
+                        <a href="#" class="cta-button">Enroll Now</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Course Card 5 -->
+            <div class="col-md-4">
+                <div class="card course-card">
+                    <img src="/api/placeholder/400/200" alt="Business" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">Business Management</h5>
+                        <p class="card-text">Learn leadership, strategy, operations and financial management skills.</p>
+                        <a href="#" class="cta-button">Enroll Now</a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Course Card 6 -->
+            <div class="col-md-4">
+                <div class="card course-card">
+                    <img src="/api/placeholder/400/200" alt="UX Design" class="card-img-top">
+                    <div class="card-body">
+                        <h5 class="card-title">UX/UI Design Fundamentals</h5>
+                        <p class="card-text">Create user-centered designs and build interactive prototypes.</p>
+                        <a href="#" class="cta-button">Enroll Now</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section id="teaching-section" class="teaching-section">
+    <div class="container content-wrapper">
+        <h2 class="text-center mb-5" style="color: var(--dark-purple);">Why Teach With Us</h2>
+        <div class="row">
+            <!-- Teaching Card 1 -->
+            <div class="col-md-4">
+                <div class="card teaching-card">
+                    <div class="card-body text-center p-4">
+                        <h1 class="display-4 mb-3" style="color: var(--primary-purple);">📊</h1>
+                        <h5 class="card-title">Reach Millions</h5>
+                        <p class="card-text">Share your expertise with students around the globe and build your online presence.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Teaching Card 2 -->
+            <div class="col-md-4">
+                <div class="card teaching-card">
+                    <div class="card-body text-center p-4">
+                        <h1 class="display-4 mb-3" style="color: var(--primary-purple);">💰</h1>
+                        <h5 class="card-title">Earn Revenue</h5>
+                        <p class="card-text">Get paid for your content with our revenue sharing model as you help others learn.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Teaching Card 3 -->
+            <div class="col-md-4">
+                <div class="card teaching-card">
+                    <div class="card-body text-center p-4">
+                        <h1 class="display-4 mb-3" style="color: var(--primary-purple);">🛠️</h1>
+                        <h5 class="card-title">Powerful Tools</h5>
+                        <p class="card-text">Access our course creation platform with video hosting, quizzes, and analytics.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Teaching Card 4 -->
+            <div class="col-md-6">
+                <div class="card teaching-card">
+                    <div class="card-body text-center p-4">
+                        <h1 class="display-4 mb-3" style="color: var(--primary-purple);">👥</h1>
+                        <h5 class="card-title">Community Support</h5>
+                        <p class="card-text">Join our instructor community for collaboration, networking and support.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Teaching Card 5 -->
+            <div class="col-md-6">
+                <div class="card teaching-card">
+                    <div class="card-body text-center p-4">
+                        <h1 class="display-4 mb-3" style="color: var(--primary-purple);">🚀</h1>
+                        <h5 class="card-title">Grow Your Brand</h5>
+                        <p class="card-text">Establish yourself as an authority in your field and expand your professional network.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'loginteacher' %}" class="cta-button">Become an Instructor</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+<!-- Footer -->
+<footer>
+    <div class="container content-wrapper">
+        <div class="row">
+            <div class="col-lg-3 col-md-6">
+                <h5>LMS</h5>
+                <p>Empowering learners worldwide with high-quality educational content and personalized learning experiences.</p>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <h5>For Students</h5>
+                <ul>
+                    <li><a href="#">All Courses</a></li>
+                    <li><a href="#">Learning Paths</a></li>
+                    <li><a href="#">Student Dashboard</a></li>
+                    <li><a href="#">Success Stories</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <h5>For Instructors</h5>
+                <ul>
+                    <li><a href="#">Become a Teacher</a></li>
+                    <li><a href="#">Teacher Resources</a></li>
+                    <li><a href="#">Instructor Dashboard</a></li>
+                    <li><a href="#">Partner Program</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <h5>Contact Us</h5>
+                <ul>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Support</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="row footer-bottom">
+            <div class="col-md-6">
+                <p>© 2025 LMS. All rights reserved.</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <div class="social-icons">
+                    <a href="#"><span>Facebook</span></a>
+                    <a href="#"><span>Twitter</span></a>
+                    <a href="#"><span>LinkedIn</span></a>
+                    <a href="#"><span>Instagram</span></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    {% comment %} const robotBtn = document.getElementById('robotBtn');
+        
+        robotBtn.addEventListener('click', function(e) {
+            const x = e.clientX - e.target.getBoundingClientRect().left;
+            const y = e.clientY - e.target.getBoundingClientRect().top;
+            
+            const ripple = document.createElement('span');
+            ripple.classList.add('ripple');
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            
+            this.appendChild(ripple);
+            
+            setTimeout(function() {
+                ripple.remove();
+            }, 600);
+        }); {% endcomment %}
+function changeContent(section) {
+    let content = document.getElementById("hero-content");
+    let courseSection = document.getElementById("course-section");
+    let teachingSection = document.getElementById("teaching-section");
+    
+    
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.classList.remove('active');
+        link.style.color = "#333"; 
+    });
+    
+    
+
+
+    courseSection.style.display = "none";
+    teachingSection.style.display = "none";
+
+    if (section === "student") {
+        content.innerHTML = `<h1>Learn. Grow. Succeed.</h1>
+                             <p>Discover new skills and unlock your potential with LMS.</p>
+                             <a href="{% url 'index' %}" class="cta-button">Get Started</a>`;
+        document.getElementById("student-tab").classList.add("active");
+        document.getElementById("student-tab").style.color = "var(--primary-purple)";
+     
+        courseSection.style.display = "block"; 
+    } 
+    else if (section === "opportunity") {
+        content.innerHTML = `<h1>Unlock Your Potential</h1>
+                             <p>Opportunities knock for those who are ready to open the door. Keep learning, keep growing.</p>
+                             <a href="#" class="cta-button">Explore Opportunities</a>`;
+        document.getElementById("opportunity-tab").classList.add("active");
+        document.getElementById("opportunity-tab").style.color = "var(--primary-purple)";
+        
+    } 
+    else if (section === "teach") {
+        content.innerHTML = `<h1>Come teach with us</h1>
+                             <p>Become an instructor and change lives—including your own.</p>
+                             <a href="{% url 'loginteacher' %}" class="cta-button">Start Teaching</a>`;
+        document.getElementById("teach-tab").classList.add("active");
+        teachingSection.style.display = "block";
+        document.getElementById("teach-tab").style.color = "var(--primary-purple)";
+    }
+}
+</script>
+
+</body>
+</html>

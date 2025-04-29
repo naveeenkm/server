@@ -1,0 +1,196 @@
+{% extends "index.html" %}
+
+{% block title %}Login/Signup{% endblock %}
+
+{% block extra_head %}
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- FontAwesome Official CDN (for social media icons) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<!-- Bootstrap JavaScript Bundle (Includes Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<style>
+    /* Light theme button styling */
+    .btn-light-theme {
+        background-color: #f8f9fa; /* Light gray background */
+        color: #212529; /* Dark text */
+        border: 1px solid #ced4da; /* Soft border */
+        font-weight: 500;
+        transition: background 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px; /* Space between icon and text */
+        padding: 10px;
+    }
+
+    .btn-light-theme:hover {
+        background-color: #e9ecef;
+    }
+
+    /* Ensure original logos retain their colors */
+    .btn-light-theme i {
+        font-size: 18px;
+        color: inherit !important; /* Keeps default icon colors */
+    }
+
+    /* Google logo original colors */
+    .btn-light-theme .fa-google {
+        background: linear-gradient(90deg, #4285F4, #34A853, #FBBC05, #EA4335);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    /* Facebook logo original color */
+    .btn-light-theme .fa-facebook {
+        color: #1877F2 !important;
+    }
+
+    /* GitHub logo original color */
+    .btn-light-theme .fa-github {
+        color: black !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-start min-vh-100 py-5">
+    <div class="card p-4 shadow-lg" style="width: 400px;">
+        {% comment %} <h3 class="text-center mb-4">Welcome</h3> {% endcomment %}
+
+        <!-- Login Form -->
+        <form id="loginForm" method="POST" action="{% url 'login' %}">
+            <h3 class="text-center mb-4">
+                Sign In 
+            </h3>
+            
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="loginUsername" class="form-label">Username</label>
+                <input type="text" class="form-control" id="loginUsername" name="username" placeholder="Enter Username" required>
+            </div>
+            <div class="mb-3">
+                <label for="loginPassword" class="form-label">Password</label>
+                <input type="password" class="form-control" id="loginPassword" name="password" placeholder="Password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Continue</button>
+            <p class="text-center mt-3">Don't have an account? <a href="#" id="showSignup">Sign up</a></p>
+
+            <!-- Light-Themed Social Login Buttons -->
+            <div class="text-center mt-2">
+                <p class="mb-1">or</p>
+                <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-light-theme w-100 mb-2">
+                    <svg fill="none" height="15" viewBox="0 0 16 16" width="15" xmlns="http://www.w3.org/2000/svg"><g><path d="M15.83 8.18C15.83 7.65333 15.7833 7.15333 15.7033 6.66667H8.17V9.67333H12.4833C12.29 10.66 11.7233 11.4933 10.8833 12.06V14.06H13.4567C14.9633 12.6667 15.83 10.6133 15.83 8.18Z" fill="#4285F4"></path><path d="M8.17 16C10.33 16 12.1367 15.28 13.4567 14.06L10.8833 12.06C10.1633 12.54 9.25 12.8333 8.17 12.8333C6.08334 12.8333 4.31667 11.4267 3.68334 9.52667H1.03V11.5867C2.34334 14.2 5.04334 16 8.17 16Z" fill="#34A853"></path><path d="M3.68334 9.52667C3.51667 9.04667 3.43 8.53333 3.43 8C3.43 7.46667 3.52334 6.95334 3.68334 6.47334V4.41334H1.03C0.483335 5.49334 0.170002 6.70667 0.170002 8C0.170002 9.29333 0.483335 10.5067 1.03 11.5867L3.68334 9.52667Z" fill="#FBBC05"></path><path d="M8.17 3.16667C9.35 3.16667 10.4033 3.57334 11.2367 4.36667L13.5167 2.08667C12.1367 0.793334 10.33 0 8.17 0C5.04334 0 2.34334 1.8 1.03 4.41334L3.68334 6.47334C4.31667 4.57334 6.08334 3.16667 8.17 3.16667Z" fill="#EA4335"></path></g></svg> Continue with Google
+                </a>
+                
+                <a href="{% url 'social:begin' 'github' %}" class="btn btn-light-theme w-100 mb-2">
+                    <i class="fa-brands fa-github"></i> Continue with GitHub
+                </a>
+            </div>
+        </form>
+
+        <!-- Signup Form (Initially Hidden) -->
+        <form id="signupForm" method="POST" action="{% url 'signup' %}" style="display: none;">
+            <h3 class="text-center mb-4">
+                Sign Up
+            </h3>
+            
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="signupUsername" class="form-label">Username</label>
+                <input type="text" class="form-control" id="signupUsername" name="username" placeholder="Enter your username" required>
+            </div>
+            <div class="mb-3">
+                <label for="signupUsername" class="form-label">First Name</label>
+                <input type="text" class="form-control" id="signupUsername" name="firstname" placeholder="Enter your firstname" required>
+            </div>
+            <div class="mb-3">
+                <label for="signupUsername" class="form-label">Last Name</label>
+                <input type="text" class="form-control" id="signupUsername" name="lastname" placeholder="Enter your lastname(optional)" >
+            </div>
+            <div class="mb-3">
+                <label for="signupEmail" class="form-label">Email</label>
+                <input type="email" class="form-control" id="signupEmail" name="email" placeholder="Enter email" required>
+            </div>
+            <div class="mb-3">
+                <label for="signupPassword" class="form-label">Password</label>
+                <input type="password" class="form-control" id="signupPassword" name="password" placeholder="Create a password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Continue</button>
+            <p class="text-center mt-3">Already have an account? <a href="#" id="showLogin">Login</a></p>
+
+            <!-- Light-Themed Social Signup Buttons -->
+            <div class="text-center mt-2">
+                <p class="mb-1">or</p>
+                <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-light-theme w-100 mb-2 ">
+                    <svg fill="none" height="15" viewBox="0 0 16 16" width="15" xmlns="http://www.w3.org/2000/svg"><g><path d="M15.83 8.18C15.83 7.65333 15.7833 7.15333 15.7033 6.66667H8.17V9.67333H12.4833C12.29 10.66 11.7233 11.4933 10.8833 12.06V14.06H13.4567C14.9633 12.6667 15.83 10.6133 15.83 8.18Z" fill="#4285F4"></path><path d="M8.17 16C10.33 16 12.1367 15.28 13.4567 14.06L10.8833 12.06C10.1633 12.54 9.25 12.8333 8.17 12.8333C6.08334 12.8333 4.31667 11.4267 3.68334 9.52667H1.03V11.5867C2.34334 14.2 5.04334 16 8.17 16Z" fill="#34A853"></path><path d="M3.68334 9.52667C3.51667 9.04667 3.43 8.53333 3.43 8C3.43 7.46667 3.52334 6.95334 3.68334 6.47334V4.41334H1.03C0.483335 5.49334 0.170002 6.70667 0.170002 8C0.170002 9.29333 0.483335 10.5067 1.03 11.5867L3.68334 9.52667Z" fill="#FBBC05"></path><path d="M8.17 3.16667C9.35 3.16667 10.4033 3.57334 11.2367 4.36667L13.5167 2.08667C12.1367 0.793334 10.33 0 8.17 0C5.04334 0 2.34334 1.8 1.03 4.41334L3.68334 6.47334C4.31667 4.57334 6.08334 3.16667 8.17 3.16667Z" fill="#EA4335"></path></g></svg>
+                     Sign up with Google
+                </a>
+               
+                <a href="{% url 'social:begin' 'github' %}" class="btn btn-light-theme w-100 mb-2">
+                    <i class="fa-brands fa-github"></i> Sign up with GitHub
+                </a>
+            </div>
+        </form>
+        <a href="{% url 'dashbord' %}" class=" d-flex justify-content-center" style="text-decoration: none;">Back to lms</a>
+    </div>
+</div>
+
+<!-- Modal for Errors -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorModalLabel">Signup Error</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {{ error_message }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Show Modal if Error Exists -->
+{% if error_message %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+        errorModal.show();
+        document.getElementById('errorModal').addEventListener('hidden.bs.modal', function () {
+            window.location.href = "/login/";
+        });
+    });
+</script>
+{% endif %}
+
+{% block extra_scripts %}
+<script>
+    document.getElementById("showSignup").addEventListener("click", function() {
+        document.getElementById("loginForm").style.display = "none";
+        document.getElementById("signupForm").style.display = "block";
+    });
+    document.addEventListener("DOMContentLoaded", function () {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("signup") === "true") {
+            document.getElementById("loginForm").style.display = "none";
+            document.getElementById("signupForm").style.display = "block";
+        }
+    });
+    
+
+    document.getElementById("showLogin").addEventListener("click", function() {
+        document.getElementById("signupForm").style.display = "none";
+        document.getElementById("loginForm").style.display = "block";
+    });
+</script>
+{% endblock %}
+{% endblock %}

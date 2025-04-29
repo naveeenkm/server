@@ -1,0 +1,1260 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <title>AI Assistant</title>
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --user-message: #e9ecef;
+            --ai-message: #f8f9fa;
+            --light-border: #dee2e6;
+            --header-bg: #4361ee;
+            --header-text: #ffffff;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f5f7fb;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .header {
+            background: var(--header-bg);
+            color: var(--header-text);
+            padding: 1.2rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        .logo i {
+            font-size: 1.8rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+        
+        .chat-container {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 70vh;
+        }
+        
+        .chat-header {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .chat-title {
+            font-weight: 500;
+            color: #495057;
+        }
+        
+        .chat-status {
+            font-size: 0.8rem;
+            color: #4caf50;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            scroll-behavior: smooth;
+        }
+        
+        .message {
+            margin-bottom: 1rem;
+            max-width: 85%;
+            padding: 1rem;
+            border-radius: 10px;
+            position: relative;
+            line-height: 1.5;
+        }
+        
+        .user {
+            background: var(--user-message);
+            margin-left: auto;
+            border-bottom-right-radius: 2px;
+        }
+        
+        .model {
+            background: var(--ai-message);
+            margin-right: auto;
+            border-bottom-left-radius: 2px;
+            border-left: 3px solid var(--primary-color);
+        }
+        
+        .sender {
+            font-size: 0.8rem;
+            margin-bottom: 0.3rem;
+            font-weight: 500;
+        }
+        
+        .user .sender {
+            color: #495057;
+            text-align: right;
+        }
+        
+        .model .sender {
+            color: var(--primary-color);
+        }
+        
+        .chat-input {
+            padding: 1rem;
+            border-top: 1px solid var(--light-border);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #f8f9fa;
+        }
+        
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        #message-box {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--light-border);
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            transition: border-color 0.3s;
+        }
+        
+        #message-box:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .btn {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary-color);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .btn-outline:hover {
+            background: rgba(67, 97, 238, 0.1);
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        
+      
+        .question-form {
+            background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        border: 1px solid var(--light-border);
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        }
+
+
+        #generate-btn {
+            width: 100%;
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.8rem;
+    font-size: 16px;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+            padding: 12px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef); /* Soft gradient */
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            transition: all 0.3s ease-in-out;
+        }
+        
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50; /* Darker for better readability */
+            font-size: 14px;
+        }
+        
+        
+        .form-group select, 
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 16px;
+            background: white;
+            color: #333;
+            transition: all 0.3s ease-in-out;
+            box-shadow: inset 0px 2px 4px rgba(0, 0, 0, 0.1); 
+        }
+        
+        
+        .form-group select:focus, 
+        .form-group input:focus {
+            outline: none;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0px 0px 8px rgba(67, 97, 238, 0.3); /* Glowing effect */
+        }
+        
+        
+        .form-group:hover {
+            transform: scale(1.02);
+            box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        
+        .form-group select {
+            appearance: none;
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            padding-right: 40px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        
+        .form-group select::-ms-expand {
+            display: none; /* Hide default arrow in IE */
+        } 
+        .form-group {
+            position: relative;
+        }
+        .form-group::after {
+           
+            font-size: 14px;
+            color: #495057;
+            position: absolute;
+            top: 50%;
+            right: 15px;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+        
+        
+        .form-group select:hover {
+            background: linear-gradient(135deg, #eef2ff, #d9e4ff);
+        }
+        
+        
+        .form-group select:focus {
+            background: linear-gradient(135deg, #d9e4ff, #eef2ff);
+        }
+        
+        .section-inputs {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        .styled-select {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid var(--light-border);
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        
+        .styled-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .skills-box {
+            display: flex;
+    flex-wrap: wrap;
+    border: 1px solid #ddd;
+    padding: 8px;
+    min-height: 40px;
+    border-radius: 6px;
+    background: white;
+        }
+        
+        .skill-tag {
+            display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    background: var(--user-message);
+    border-radius: 5px;
+    margin: 5px;
+    font-size: 14px;
+    font-weight: 500;
+        }
+        
+        .question-input {
+            width: 35%;
+            padding: 3px;
+        }
+        
+        .remove-skill {
+            cursor: pointer;
+            color: red;
+            font-weight: bold;
+        }
+        .styled-input {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid var(--light-border);
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .styled-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        
+        
+        .suggestions-box, #suggestions {
+            position: absolute;
+            background: white;
+            border: 1px solid #ccc;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            width: auto;
+            min-width: 150px;
+            max-width: 100%;
+            margin-top: 5px;
+            padding: 5px;
+            white-space: nowrap;
+            display: none; /* Hide by default */
+        }
+        
+        /* 🔥 Correct way to show suggestions */
+        .skill-container:focus-within .suggestions-box,
+        .skill-container:focus-within #suggestions {
+            display: block;
+        }
+        
+        
+        
+        .suggestion-item {
+            padding: 8px;
+    cursor: pointer;
+    font-size: 14px;
+        }
+        
+        .suggestion-item:hover {
+            background: #f0f0f0;
+        }
+        
+        .skill-container {
+            position: relative;
+            width: 100%;
+        }
+        
+        
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 0.5rem;
+                margin: 0.5rem auto;
+            }
+        
+            .chat-container {
+                height: 75vh; 
+                overflow-y: auto; 
+            }
+        
+            .message {
+                max-width: 90%;
+                font-size: 14px; 
+            }
+        
+            .section-inputs {
+                grid-template-columns: 1fr;
+                gap: 0.5rem
+            }
+        
+            #generate-btn {
+                padding: 0.7rem;
+                font-size: 0.85rem;
+                width: 100%; 
+            }
+        
+            .btn {
+                padding: 0.6rem 1rem;
+                font-size: 14px;
+                width: 100%; 
+            }
+        }
+
+        @media (max-width: 768px) {
+            .styled-input,
+            .styled-select {
+                font-size: 14px;
+                padding: 0.5rem;
+            }
+        
+            .skill-tag {
+                font-size: 13px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .styled-input,
+            .styled-select {
+                font-size: 12px;
+                padding: 0.4rem;
+            }
+        
+            .skill-tag {
+                font-size: 12px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .container {
+                padding: 0 0.3rem;
+            }
+        
+            .chat-container {
+                height: 70vh;
+            }
+        
+            .message {
+                max-width: 95%;
+                font-size: 13px;
+            }
+        
+            .btn {
+                padding: 0.5rem 0.8rem;
+                font-size: 12px;
+            }
+        
+            #generate-btn {
+                font-size: 0.8rem;
+                padding: 0.6rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .btn {
+                padding: 0.5rem 0.5rem;
+                font-size: 10px;
+            }
+            
+        }
+        @media (max-width: 480px) {
+            #send-btn {
+                width: 50px;
+                padding: 0.6rem; 
+                padding-right: 0.7rem; 
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                white-space: nowrap; 
+            }
+        
+            #send-btn span {
+                display: none; 
+            }
+        
+            #send-btn i {
+                font-size: 1.3rem; 
+            }
+            #message-box {
+                padding: 0.6rem 0.8rem;
+                font-size: 12px; 
+            }
+        }
+        @media (max-width: 280px) {
+            #send-btn {
+                width: 40px;
+                padding: 0.1rem; 
+                padding-right: 0.2rem; 
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                white-space: nowrap; 
+            }
+        
+            #send-btn span {
+                display: none; 
+            }
+        
+            #send-btn i {
+                font-size: 1rem; 
+            }
+            #message-box {
+                padding: 0.6rem 0.8rem;
+                font-size: 8px; 
+            }
+        }
+
+        #chat-box {
+            max-height: 400px; 
+            overflow-y: auto;
+            
+        }
+        #question-form{
+            max-height: 400px; 
+            overflow-y: auto;
+        }
+        /* 🔹 Skill Tag - Clean Design */
+.skill-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef); /* Soft gradient */
+    border: 1px solid #ddd;
+    color: #333;
+    transition: all 0.2s ease-in-out;
+    margin: 4px;
+}
+
+/* 🔹 Input inside Skill Tag */
+.question-input {
+    width: 50px;
+    padding: 4px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    text-align: center;
+    outline: none;
+    background: white;
+    color: #333;
+}
+
+/* 🔹 Remove Skill Button */
+.remove-skill {
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    color: #888;
+    transition: all 0.2s ease-in-out;
+}
+
+.remove-skill:hover {
+    color: #e74c3c; /* Soft red */
+}
+
+        
+        
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-robot"></i>
+            <span>AI Assistant</span>
+        </div>
+        <div class="menu">
+            <i class="fas fa-cog"></i>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-title">AI Conversation</div>
+                <div class="chat-status">
+                    <i class="fas fa-circle"></i> Online
+                </div>
+            </div>
+            
+            <div class="chat-messages" id="chat-box">
+              
+                <div class="message model">
+                    <div class="sender">AI Assistant</div>
+                    Hello! How can I help you today?
+                </div>
+            </div>
+            
+            <div id="question-form" class="question-form hidden">
+                <div class="form-group">
+                    <label for="difficulty">Difficulty Level:</label>
+                    <select id="difficulty" class="styled-select">
+                        <option value="easy">Easy</option>
+                        <option value="medium">Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Key Skills:</label>
+                    <div class="skill-container">
+                        <div id="skill-container" class="skills-box"></div>
+                        <input type="text" id="skill-input" class="styled-input" placeholder="Type to search skills...">
+                        <div id="suggestions" class="suggestions-box"></div>
+                    </div>
+                </div>
+                
+                
+                <button id="generate-btn" class="btn btn-primary">
+                    <i class="fas fa-file-alt"></i> Generate Questions
+                </button>
+            </div>
+            
+            <div class="chat-input">
+                <div class="action-buttons">
+                    <button id="chat-btn" class="btn btn-outline">
+                        <i class="fas fa-comment"></i> Chat with Us
+                    </button>
+                    <button id="question-paper-btn" class="btn btn-outline">
+                        <i class="fas fa-file-alt"></i> Generate Question Paper
+                    </button>
+                </div>
+                <div class="input-row">
+                    <input type="text" id="message-box" placeholder="Type your message here..." autofocus>
+                    <button id="send-btn" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> <span>Send</span>
+                    </button>
+                    
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button id="download-btn" class="btn btn-outline" onclick="downloadChat()">
+                <i class="fas fa-download"></i> Download Chat History
+            </button>
+            
+        </div>
+        <div style="text-align: center;">
+            <a href="{% url 'dashbord' %}" style="color: blue; text-decoration: none;">
+                Back to LMS
+            </a>
+        </div>
+        
+    </div>
+
+    <script>
+        document.getElementById("send-btn").addEventListener("click", sendMessage);
+        document.getElementById("message-box").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                sendMessage();
+            }
+        });
+        
+        document.getElementById("chat-btn").addEventListener("click", function() {
+            document.getElementById("question-form").classList.add("hidden");
+            document.getElementById("message-box").focus();
+            
+           
+            let chatBox = document.getElementById("chat-box");
+            let aiDiv = document.createElement("div");
+            aiDiv.className = "message model";
+            
+            let aiSenderDiv = document.createElement("div");
+            aiSenderDiv.className = "sender";
+            aiSenderDiv.textContent = "AI Assistant";
+            
+            aiDiv.appendChild(aiSenderDiv);
+            aiDiv.appendChild(document.createTextNode("Ok, tell me what you want."));
+            chatBox.appendChild(aiDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+        
+        document.getElementById("question-paper-btn").addEventListener("click", function() {
+            document.getElementById("question-form").classList.remove("hidden");
+        });
+        async function loadSkills() {
+            let skillInput = document.getElementById("skill-input");
+            let suggestionBox = document.getElementById("suggestions");
+            let skillContainer = document.getElementById("skill-container");
+        
+            let response = await fetch("api/skills");
+            let skills = await response.json();
+        
+            skillInput.addEventListener("input", function () {
+                let query = skillInput.value.toLowerCase();
+                let filtered = skills.filter(s => s.toLowerCase().startsWith(query));
+        
+                suggestionBox.innerHTML = ""; // Clear previous suggestions
+        
+                if (filtered.length === 0) {
+                    suggestionBox.style.display = "none"; // Hide when no match
+                    return;
+                }
+        
+                suggestionBox.style.display = "block"; // Show when matches exist
+        
+                filtered.forEach(skill => {
+                    let option = document.createElement("div");
+                    option.className = "suggestion-item";
+                    option.textContent = skill;
+                    option.onclick = function () {
+                        skillInput.value = "";  // Clear input field
+                        addSkill(skill);
+                        suggestionBox.style.display = "none"; // Hide suggestions after selection
+                    };
+                    suggestionBox.appendChild(option);
+                });
+            });
+        
+            // Hide suggestions when clicking outside
+            document.addEventListener("click", function (event) {
+                if (!skillContainer.contains(event.target)) {
+                    suggestionBox.style.display = "none";
+                }
+            });
+        }
+        
+        function addSkill(skill) {
+            let skillContainer = document.getElementById("skill-container");
+        
+            // Prevent duplicates
+            if ([...skillContainer.children].some(child => child.dataset.skill === skill)) return;
+        
+            // Create skill tag container
+            let skillTag = document.createElement("div");
+            skillTag.className = "skill-tag";
+            skillTag.dataset.skill = skill;
+        
+            // Skill name
+            let skillLabel = document.createElement("span");
+            skillLabel.textContent = skill;
+        
+            // Input for number of questions
+            let questionInput = document.createElement("input");
+            questionInput.type = "number";
+            questionInput.min = "1";
+            questionInput.value = "";
+            questionInput.className = "question-input";
+            questionInput.placeholder = "No. of questions";
+        
+            // Remove button
+            let removeBtn = document.createElement("span");
+            removeBtn.className = "remove-skill";
+            removeBtn.textContent = "×";
+            removeBtn.onclick = function () {
+                skillTag.remove();
+            };
+        
+            // Append elements
+            skillTag.appendChild(skillLabel);
+            skillTag.appendChild(questionInput);
+            skillTag.appendChild(removeBtn);
+        
+            // Append skill tag to container
+            skillContainer.appendChild(skillTag);
+        }
+        
+        
+        
+        
+        
+        document.addEventListener("DOMContentLoaded", loadSkills);
+        document.getElementById("generate-btn").addEventListener("click", generateQuestionPaper);
+
+        function sendMessage() {
+            let messageBox = document.getElementById("message-box");
+            let chatBox = document.getElementById("chat-box");
+            let message = messageBox.value.trim();
+            
+            if (message) {
+                let userDiv = document.createElement("div");
+                userDiv.className = "message user";
+                
+                let senderDiv = document.createElement("div");
+                senderDiv.className = "sender";
+                senderDiv.textContent = "You";
+                
+                userDiv.appendChild(senderDiv);
+                userDiv.appendChild(document.createTextNode(message));
+                chatBox.appendChild(userDiv);
+        
+                
+                let typingDiv = document.createElement("div");
+                typingDiv.className = "message model";
+                typingDiv.innerHTML = '<div class="sender">AI Assistant</div>Typing...';
+                chatBox.appendChild(typingDiv);
+                
+                chatBox.scrollTop = chatBox.scrollHeight;
+                
+        
+                let csrftoken = getCookie("csrftoken");
+        
+                fetch("chat/", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        "X-CSRFToken": csrftoken, 
+                    },
+                    body: "message=" + encodeURIComponent(message),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    
+                    chatBox.removeChild(typingDiv);
+                    
+                    let aiDiv = document.createElement("div");
+                    aiDiv.className = "message model";
+                    
+                    let aiSenderDiv = document.createElement("div");
+                    aiSenderDiv.className = "sender";
+                    aiSenderDiv.textContent = "AI Assistant";
+                    
+                    aiDiv.appendChild(aiSenderDiv);
+                    aiDiv.appendChild(document.createTextNode(data.response));
+                    chatBox.appendChild(aiDiv);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                })
+                .catch(error => {
+                   
+                    chatBox.removeChild(typingDiv);
+                    
+                    let errorDiv = document.createElement("div");
+                    errorDiv.className = "message model";
+                    
+                    let errorSenderDiv = document.createElement("div");
+                    errorSenderDiv.className = "sender";
+                    errorSenderDiv.textContent = "System";
+                    
+                    errorDiv.appendChild(errorSenderDiv);
+                    errorDiv.appendChild(document.createTextNode("Sorry, there was an error processing your request."));
+                    chatBox.appendChild(errorDiv);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                });
+        
+                messageBox.value = "";
+            }
+        }
+        function getSelectedSkills() {
+            let skillTags = document.querySelectorAll("#skill-container .skill-tag");
+            let skills = [];
+        
+            skillTags.forEach(tag => {
+                let skillName = tag.querySelector("span").textContent;
+                let questionCount = tag.querySelector("input").value;
+        
+                skills.push({ skill: skillName, questions: parseInt(questionCount) });
+            });
+        
+            return skills;
+        }
+        
+        
+        function generateQuestionPaper() {
+            let chatBox = document.getElementById("chat-box");
+            let difficulty = document.getElementById("difficulty").value;
+            {% comment %} let numerical = document.getElementById("numerical").value;
+            let verbal = document.getElementById("verbal").value;
+            let reasoning = document.getElementById("reasoning").value;
+            let coding = document.getElementById("coding").value; {% endcomment %}
+            let skills =  getSelectedSkills(); 
+            
+            
+            let skillDetails = skills.map(skill => `${skill.skill} (${skill.questions} questions)`).join(", ");
+
+let userMessage = `Generate a question paper with the following skills: ${skillDetails}`;
+            
+            let userDiv = document.createElement("div");
+            userDiv.className = "message user";
+            
+            let senderDiv = document.createElement("div");
+            senderDiv.className = "sender";
+            senderDiv.textContent = "You";
+            
+            userDiv.appendChild(senderDiv);
+            userDiv.appendChild(document.createTextNode(userMessage));
+            chatBox.appendChild(userDiv);
+            
+            
+            let typingDiv = document.createElement("div");
+            typingDiv.className = "message model";
+            typingDiv.innerHTML = '<div class="sender">AI Assistant</div>Generating your question paper...';
+            chatBox.appendChild(typingDiv);
+            
+            chatBox.scrollTop = chatBox.scrollHeight;
+            
+            
+            {% comment %} let promptMessage = `Generate a multiple-choice question paper in JSON format. Each question should have an ID, a question text, four options, and the correct answer. Use the following specifications:
+
+- Difficulty level: ${difficulty}
+- ${numerical} questions on **Numerical Ability** (Select topics from: Ratios, Mixtures, Averages, Percentages, Profit & Loss, Speed & Time, Pipes & Cisterns, Quadratic Equations, Logarithms, Geometry, Mensuration, Combinatorics, Set Theory)
+- ${reasoning} questions on **Logical Reasoning** (Select topics from: Calendar, Coding-Decoding, Blood Relations, Number Tests, Sequences, Clocks, Ranking & Time Sequence, Venn Diagrams, Syllogisms, Analogies, Alphabet Tests, Alphanumeric Puzzles)
+- ${verbal} questions on **Verbal Ability** (Select topics from: Summarization, Critical Reasoning, Paragraph Completion, Synonyms & Antonyms, Jumbled Paragraphs, Grammar Correction, Vocabulary Usage, Sentence Arrangement)
+- ${coding} questions on **Coding Concepts** (Select topics from: Data Structures, Algorithms, OOPs, Time Complexity, Recursion, Arrays, Strings, Dynamic Programming, Graphs, Trees, Sorting, Searching)
+- ${skills.length} questions on **Technical Skills** (Topics: ${skills.join(", ")})
+
+For each question, provide:
+1. The question text  
+2. Four possible answers (A, B, C, D)  
+3. The correct answer  
+
+Return **only the JSON object** without any additional text, formatting, or markdown. Do **not** include triple backticks (\`) or language indicators like \`json\`.  
+
+Example response format:
+{
+  "1": {"question": "What is the time complexity of binary search?", "options": ["O(n)", "O(log n)", "O(n^2)", "O(1)"], "corrected": "O(log n)"},
+  "2": {"question": "Choose the correct synonym for 'ephemeral'", "options": ["Permanent", "Temporary", "Weak", "Strong"], "corrected": "Temporary"}
+}
+
+Ensure:
+✅ No explanations, extra text, or code formatting  
+✅ Strictly a valid JSON object  
+✅ No section titles like "Numerical Ability" inside the JSON  
+✅ Each response generates unique, random questions.
+.
+`; {% endcomment %}
+
+let promptMessage = `Generate a multiple-choice question paper in JSON format. Each question should have an ID, a question text, four options, and the correct answer. Use the following specifications:
+
+- Difficulty level: ${difficulty}
+- ${skillDetails}
+
+For each question, provide:
+1. The question text  
+2. Four possible answers (A, B, C, D)  
+3. The correct answer  
+
+Return **only the JSON object** without any additional text, formatting, or markdown. Do **not** include triple backticks (\`) or language indicators like \`json\`.  
+
+Example response format:
+{
+  "1": {"question": "What is the time complexity of binary search?", "options": ["O(n)", "O(log n)", "O(n^2)", "O(1)"], "corrected": "O(log n)"},
+  "2": {"question": "Choose the correct synonym for 'ephemeral'", "options": ["Permanent", "Temporary", "Weak", "Strong"], "corrected": "Temporary"}
+}
+
+Ensure:
+✅ No explanations, extra text, or code formatting  
+✅ Strictly a valid JSON object  
+✅ No section titles like "Numerical Ability" inside the JSON  
+✅ Each response generates unique, random questions.
+.`;
+            
+            
+
+document.getElementById("question-form").classList.add("hidden");
+let csrftoken = getCookie("csrftoken");
+
+fetch("chat/", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "X-CSRFToken": csrftoken, 
+    },
+    body: "message=" + encodeURIComponent(promptMessage),
+})
+.then(response => response.json())
+.then(data => {
+    console.log(data);
+    chatBox.removeChild(typingDiv);
+
+    let aiDiv = document.createElement("div");
+    aiDiv.className = "message model";
+
+    let aiSenderDiv = document.createElement("div");
+    aiSenderDiv.className = "sender";
+    aiSenderDiv.textContent = "AI Assistant";
+
+    aiDiv.appendChild(aiSenderDiv);
+    aiDiv.appendChild(document.createTextNode(data.response));
+    chatBox.appendChild(aiDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+
+    document.getElementById("question-form").classList.add("hidden");
+    let cleanResponse = data.response.replace(/'''json|'''/g, "").trim();
+    let responseText = data.response.trim(); 
+
+    // Ensure the response is valid JSON format
+    if (responseText.startsWith("```json")) {
+        responseText = responseText.slice(7, -3); // Remove ```json and ```
+    }
+
+    try {
+        let questions = JSON.parse(responseText); 
+        console.log(questions);
+        
+     
+        let confirmDiv = document.createElement("div");
+        confirmDiv.className = "message model";
+        
+        let confirmText = document.createElement("div");
+        confirmText.textContent = "Are these questions OK?";
+        confirmText.style.marginBottom = "10px";
+        confirmDiv.appendChild(confirmText);
+        
+        
+        let yesBtn = document.createElement("button");
+        yesBtn.textContent = "Yes";
+        yesBtn.style.backgroundColor = "#4CAF50"; 
+        yesBtn.style.color = "white"; 
+        yesBtn.style.padding = "8px 15px"; 
+        yesBtn.style.margin = "5px";
+        yesBtn.style.border = "none";
+        yesBtn.style.borderRadius = "5px";
+        yesBtn.style.cursor = "pointer";
+        
+        yesBtn.onclick = function () {
+            confirmDiv.remove();
+        
+            // Create input field for assessment time
+            let timeDiv = document.createElement("div");
+            timeDiv.className = "message model";
+            timeDiv.innerHTML = `<strong>Enter time (in minutes) for the assessment:</strong>`;
+        
+            let timeInput = document.createElement("input");
+            timeInput.type = "number";
+            timeInput.placeholder = "Enter minutes";
+            timeInput.style.margin = "5px";
+            timeInput.style.padding = "5px";
+        
+            let timeSubmitBtn = document.createElement("button");
+            timeSubmitBtn.textContent = "Submit";
+            timeSubmitBtn.style.backgroundColor = "#4CAF50";
+            timeSubmitBtn.style.color = "white";
+            timeSubmitBtn.style.padding = "5px 10px";
+            timeSubmitBtn.style.marginLeft = "5px";
+            timeSubmitBtn.style.border = "none";
+            timeSubmitBtn.style.cursor = "pointer";
+        
+            timeDiv.appendChild(timeInput);
+            timeDiv.appendChild(timeSubmitBtn);
+            chatBox.appendChild(timeDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        
+            timeSubmitBtn.onclick = function () {
+                let timeAllotment = timeInput.value.trim();
+                if (!timeAllotment || isNaN(timeAllotment) || timeAllotment <= 0) {
+                    alert("Invalid time entered. Please try again.");
+                    return;
+                }
+        
+                let timediv = document.createElement("div");
+                timediv.className = "message model";
+                timediv.textContent =`Time to allotment: ${timeAllotment} minutes`  ;
+                timediv.style.color = "purple";
+                    chatBox.appendChild(timediv);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                timeDiv.remove();
+        
+                // Create input field for assessment name
+                let nameDiv = document.createElement("div");
+                nameDiv.className = "message model";
+                nameDiv.innerHTML = `<strong>Enter assessment name:</strong>`;
+        
+                let nameInput = document.createElement("input");
+                nameInput.type = "text";
+                nameInput.placeholder = "Enter assessment name";
+                nameInput.style.margin = "5px";
+                nameInput.style.padding = "5px";
+        
+                let nameSubmitBtn = document.createElement("button");
+                nameSubmitBtn.textContent = "Submit";
+                nameSubmitBtn.style.backgroundColor = "#4CAF50";
+                nameSubmitBtn.style.color = "white";
+                nameSubmitBtn.style.padding = "5px 10px";
+                nameSubmitBtn.style.marginLeft = "5px";
+                nameSubmitBtn.style.border = "none";
+                nameSubmitBtn.style.cursor = "pointer";
+        
+                nameDiv.appendChild(nameInput);
+                nameDiv.appendChild(nameSubmitBtn);
+                chatBox.appendChild(nameDiv);
+                chatBox.scrollTop = chatBox.scrollHeight;
+        
+                nameSubmitBtn.onclick = function () {
+                    let assessmentName = nameInput.value.trim();
+                    if (!assessmentName) {
+                        alert("Invalid name entered. Please try again.");
+                        return;
+                    }
+                    let namediv = document.createElement("div");
+                    namediv.className = "message model";
+                    namediv.textContent =`assessment name: ${assessmentName}`  ;
+                    namediv.style.color = "purple";
+                    chatBox.appendChild(namediv);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+        
+                    // Remove assessment name input field
+                    nameDiv.remove();
+        
+                    
+                    storeQuestions(questions, timeAllotment, assessmentName);
+        
+                    let successDiv = document.createElement("div");
+                    successDiv.className = "message model";
+                    successDiv.textContent = "Questions Created Successfully!";
+                    successDiv.style.color = "green";
+                    chatBox.appendChild(successDiv);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                };
+            };
+        };
+        
+        confirmDiv.appendChild(yesBtn);
+    
+        let noBtn = document.createElement("button");
+        noBtn.textContent = "No";
+        noBtn.style.backgroundColor = "#f44336"; 
+        noBtn.style.color = "white"; 
+        noBtn.style.padding = "8px 15px"; 
+        noBtn.style.margin = "5px";
+        noBtn.style.border = "none";
+        noBtn.style.borderRadius = "5px";
+        noBtn.style.cursor = "pointer";
+        
+        noBtn.onclick = function() {
+            let tryDiv = document.createElement("div");
+            tryDiv.className = "message model";
+            tryDiv.textContent = "Try to generate the questions again.";
+            tryDiv.style.color = "red";
+            chatBox.appendChild(tryDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        };
+        confirmDiv.appendChild(noBtn);
+        
+        chatBox.appendChild(confirmDiv);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        
+
+    } catch (error) {
+        console.error("Invalid JSON format:", error);
+    }
+})
+.catch(error => {
+    alert(error);
+    chatBox.removeChild(typingDiv);
+
+    let errorDiv = document.createElement("div");
+    errorDiv.className = "message model";
+
+    let errorSenderDiv = document.createElement("div");
+    errorSenderDiv.className = "sender";
+    errorSenderDiv.textContent = "System";
+
+    errorDiv.appendChild(errorSenderDiv);
+    errorDiv.appendChild(document.createTextNode("Sorry, there was an error generating your question paper."));
+    chatBox.appendChild(errorDiv);
+    chatBox.scrollTop = chatBox.scrollHeight;
+});
+function storeQuestions(questions, timeAllotment, assessmentName) {
+    const teacher_id = "{{ request.session.teacher_id }}";
+
+    fetch("store_question/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken,
+        },
+        body: JSON.stringify({
+            teacher_id: teacher_id,
+            questions: JSON.stringify(questions),
+            time_allotment: timeAllotment,
+            assessment_name: assessmentName
+        }),
+    })
+    .then(response => response.json())
+    .then(responseData => console.log("Stored:", responseData))
+    .catch(error => console.error("Error storing:", error));
+}
+        }
+
+
+        
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== "") {
+                let cookies = document.cookie.split(";");
+                for (let i = 0; i < cookies.length; i++) {
+                    let cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + "=")) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        function downloadChat() {
+            window.location.href = "chat/download/";
+        }
+    </script>
+</body>
+</html>

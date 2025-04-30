@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect
 import requests
-from .models import Person, LoginUser
 from django.http import HttpResponse
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.decorators import login_required
@@ -8,8 +7,6 @@ from django.contrib.auth import authenticate, login, logout
 from pymongo import MongoClient
 from django.http import HttpResponseForbidden
 from django.contrib.auth.models import User
-from django.contrib.auth.models import AnonymousUser
-from django.contrib.auth.backends import BaseBackend
 from django.contrib.auth import get_user_model
 from bson import ObjectId
 import json
@@ -926,7 +923,7 @@ def get_teacher_courses(request, teacher_id):
             course['_id'] = str(course.pop('_id'))
             
             # Parse the JSON data back to Python dict
-            import json
+            
             if 'course_data_json' in course:
                 course_data = json.loads(course['course_data_json'])
                 # Merge the parsed data with the course document
@@ -1406,8 +1403,8 @@ def submit_test(request):
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
 
-import requests
-import json
+
+
 
 def evaluate_with_gemini(question_text, student_answer):
     """
@@ -1928,15 +1925,9 @@ def teacherpage(request):
 def teacher(request):
     return render(request, 'authteacher.html')
 
-def add_person(request):
-    person = Person(name="Doe", age=30)
-    person.save()
-    return HttpResponse("<h1>Person added successfully</h1>")
 
 
-def get_person(request):
-    person = Person.objects.first() # Get first person
-    return HttpResponse(f"<h1>Name: {person.name}, Age: {person.age}</h1>")
+
 
 
 def check_auth(request):

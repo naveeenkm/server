@@ -42,24 +42,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # "django.contrib.sites",
     "app",
-    "social_django",
-    "allauth",
-    "allauth.account",
-    "allauth.socialaccount",
-    "allauth.socialaccount.providers.google",  # For Google Login
-    "allauth.socialaccount.providers.facebook",  # For Facebook Login
-    "allauth.socialaccount.providers.github",
-    "oauth2_provider",
     "rest_framework",
     "rest_framework.authtoken",
-    "dj_rest_auth",
     "mangocheck",
     "generative",
     "corsheaders",
-    'rest_framework_simplejwt',
+    "rest_framework_simplejwt",
 ]
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -149,8 +140,8 @@ SOCIAL_ACCOUNT_PROVIDER={
 # Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': '',
+        
     }
 }
 
@@ -180,9 +171,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    'social_core.backends.google.GoogleOAuth2',
-    'social_core.backends.facebook.FacebookOAuth2',
-    'social_core.backends.github.GithubOAuth2',
     'app.auth_backends.StudentAuthBackend',  
     'app.auth_backends.TeacherAuthBackend',
     'django.contrib.auth.backends.ModelBackend',
@@ -192,29 +180,29 @@ AUTHENTICATION_BACKENDS = [
 
 
 
-import os
+# import os
 
-def load_env_file(file_path):
-    """Read .env file and load variables into environment"""
-    if os.path.exists(file_path):
-        with open(file_path) as f:
-            for line in f:
-                key, value = line.strip().split("=", 1)
-                os.environ[key] = value
+# def load_env_file(file_path):
+#     """Read .env file and load variables into environment"""
+#     if os.path.exists(file_path):
+#         with open(file_path) as f:
+#             for line in f:
+#                 key, value = line.strip().split("=", 1)
+#                 os.environ[key] = value
 
-# Provide the absolute path to the .env file
-env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
-load_env_file(env_path)
+# # Provide the absolute path to the .env file
+# env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env")
+# load_env_file(env_path)
 
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY")
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET")
+# SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY")
+# SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET")
 
-SOCIAL_AUTH_FACEBOOK_KEY = os.environ.get("SOCIAL_AUTH_FACEBOOK_KEY")
-SOCIAL_AUTH_FACEBOOK_SECRET = os.environ.get("SOCIAL_AUTH_FACEBOOK_SECRET")
+# SOCIAL_AUTH_FACEBOOK_KEY = os.environ.get("SOCIAL_AUTH_FACEBOOK_KEY")
+# SOCIAL_AUTH_FACEBOOK_SECRET = os.environ.get("SOCIAL_AUTH_FACEBOOK_SECRET")
 
-SOCIAL_AUTH_GITHUB_KEY = os.environ.get("SOCIAL_AUTH_GITHUB_KEY")
-SOCIAL_AUTH_GITHUB_SECRET = os.environ.get("SOCIAL_AUTH_GITHUB_SECRET")
+# SOCIAL_AUTH_GITHUB_KEY = os.environ.get("SOCIAL_AUTH_GITHUB_KEY")
+# SOCIAL_AUTH_GITHUB_SECRET = os.environ.get("SOCIAL_AUTH_GITHUB_SECRET")
 
 
 

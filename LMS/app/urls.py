@@ -10,8 +10,7 @@ urlpatterns = [
     path('loginteacher/',views.teacher,name='loginteacher'),
     path('',views.dashbord,name='dashbord'),
     # path('dashbord1/',views.dashbord1,name='dashbord1'),
-    path('accounts/',include('allauth.urls')),
-    path('oauth/', include('social_django.urls', namespace='social')),
+   
     path('logout/', views.logout_view, name='logout'),
     
     path('login/', views.index, name='index'),

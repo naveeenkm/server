@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 import requests
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.hashers import make_password, check_password
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import get_user_model
 from bson import ObjectId
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from rest_framework.decorators import api_view
@@ -43,17 +43,19 @@ db = client["test_mongo"]
 teacher_collection = db["auth_teachers"] 
 users_collection = db["auth_user"]
 hr_collection = db_hr["authhr"]
-deleted_hr_collection = db_hr["deleted_hr"]
-deleted_user_collection = db["deleted_auth_user"]
 admin_collection = db["auth_admin"]
 questions_collection = db["questions"] 
-courses_collection = db["Courses"]
 results_collection=db["Results"]
 answers_collection=db["Answers"]
-deleted_question_collection=db["DeletedQuestions"]
 courses_collection = db['courses']
 blog_collection = db['blog']
+deleted_question_collection=db["DeletedQuestions"]
+deleted_courses_collection=db["DeletedCourses"]
 content_types_collection = db['content_types']
+deleted_blogs_collection=db['deleted_blogs']
+deleted_tests_collection=db["deleted_tests"]
+deleted_hr_collection = db_hr["deleted_hr"]
+deleted_user_collection = db["deleted_auth_user"]
 
 
 
@@ -63,6 +65,272 @@ content_types_collection = db['content_types']
 
 def index(request):
     return render(request, 'authunticate.html')
+
+def admin_dashboard_stats(request):
+    try:
+        # Count all collections
+        total_users = db.auth_user.count_documents({})
+        total_teachers = db.auth_teachers.count_documents({})
+        total_hr = db_hr.authhr.count_documents({})
+        total_courses = db.courses.count_documents({"is_active": True})
+        total_blogs = db.blog.count_documents({})
+        total_questions = db.questions.count_documents({})
+        
+        # Count new users in last 30 days
+        thirty_days_ago = datetime.datetime.now() - timedelta(days=30)
+        new_users = db.auth_user.count_documents({
+            "date_joined": {"$gte": thirty_days_ago}
+        })
+        
+        
+        revenue = 24800 + (new_users * 10)  # Base + $10 per new user
+        
+        return JsonResponse({
+            'total_users': total_users,
+            'total_teachers': total_teachers,
+            'total_hr': total_hr,
+            'total_courses': total_courses,
+            'total_blogs': total_blogs,
+            'total_questions': total_questions,
+            'new_users': new_users,
+            'revenue': revenue,
+            'success': True
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e), 'success': False}, status=500)
+
+def user_growth_data(request):
+    try:
+        # Get user growth for last 6 months
+        data = []
+        months = 6
+        
+        for i in range(months):
+            start_date = datetime.datetime.now() - timedelta(days=30*(months-i))
+            end_date = datetime.datetime.now() - timedelta(days=30*(months-i-1))
+            
+            count = db.auth_user.count_documents({
+                "date_joined": {
+                    "$gte": start_date,
+                    "$lt": end_date
+                }
+            })
+            
+            data.append({
+                'name': start_date.strftime('%b'),
+                'users': count
+            })
+        
+        return JsonResponse({'data': data, 'success': True})
+    except Exception as e:
+        return JsonResponse({'error': str(e), 'success': False}, status=500)
+
+def traffic_sources(request):
+    try:
+        # For demo, we'll simulate traffic sources
+        # In a real app, you'd get this from analytics
+        return JsonResponse({
+            'data': [
+                {'name': 'Web', 'value': 65},
+                {'name': 'Mobile', 'value': 35}
+            ],
+            'success': True
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e), 'success': False}, status=500)
+
+def system_status(request):
+    try:
+        # Simulate system status
+        # In a real app, you'd get this from monitoring tools
+        return JsonResponse({
+            'data': [
+                {'name': 'CPU Usage', 'value': '24%', 'trend': 'down'},
+                {'name': 'Memory', 'value': '3.2/8GB', 'trend': 'stable'},
+                {'name': 'Storage', 'value': '45%', 'trend': 'up'},
+                {'name': 'Uptime', 'value': '99.9%', 'trend': 'stable'}
+            ],
+            'success': True
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e), 'success': False}, status=500)
+# def system_status(request):
+#     try:
+#         # 1. Calculate document counts and estimate storage
+#         user_count = db.auth_user.count_documents({})
+#         teacher_count = db.auth_teachers.count_documents({})
+#         course_count = db.courses.count_documents({})
+#         blog_count = db.blog.count_documents({})
+#         question_count = db.questions.count_documents({})
+        
+#         # 2. Estimate storage usage (adjust these weights based on your actual document sizes)
+#         estimated_sizes = {
+#             'users': user_count * 2,      # KB per user (adjust based on your schema)
+#             'teachers': teacher_count * 3, # KB per teacher
+#             'courses': course_count * 10,  # KB per course (courses are larger)
+#             'blogs': blog_count * 15,      # KB per blog
+#             'questions': question_count * 5 # KB per question
+#         }
+        
+#         total_used_kb = sum(estimated_sizes.values())
+#         total_used_gb = round(total_used_kb / (1024 * 1024), 2)  # Convert to GB
+        
+#         # 3. Get actual storage stats from MongoDB (requires admin privileges)
+#         storage_stats = db.command('dbStats')
+#         storage_used_bytes = storage_stats.get('storageSize', 0)
+#         storage_used_gb = round(storage_used_bytes / (1024 ** 3), 2)
+        
+#         # 4. Calculate percentages (assuming 100GB total storage for example)
+#         total_storage_gb = 100  # Adjust this to your actual storage capacity
+#         storage_percent = min(100, round((storage_used_gb / total_storage_gb) * 100, 2))
+        
+#         # 5. Get memory usage from system
+#         import psutil
+#         memory = psutil.virtual_memory()
+#         memory_used = round(memory.used / (1024 ** 3), 1)
+#         memory_total = round(memory.total / (1024 ** 3), 1)
+#         memory_percent = memory.percent
+        
+#         # 6. CPU usage
+#         cpu_percent = psutil.cpu_percent(interval=1)
+        
+#         # 7. Uptime (server uptime)
+#         uptime_seconds = psutil.boot_time()
+#         uptime_days = round((time.time() - uptime_seconds) / (24 * 3600), 1)
+        
+#         return JsonResponse({
+#             'data': [
+#                 {
+#                     'name': 'CPU Usage',
+#                     'value': f'{cpu_percent}%',
+#                     'trend': 'down' if cpu_percent < 30 else 'up' if cpu_percent > 70 else 'stable'
+#                 },
+#                 {
+#                     'name': 'Memory',
+#                     'value': f'{memory_used}/{memory_total}GB ({memory_percent}%)',
+#                     'trend': 'stable'
+#                 },
+#                 {
+#                     'name': 'Storage',
+#                     'value': f'{storage_percent}% ({storage_used_gb}GB used of {total_storage_gb}GB)',
+#                     'trend': 'up' if storage_percent > 80 else 'stable',
+#                     'breakdown': {
+#                         'users': f'{user_count} users ({estimated_sizes["users"]}KB)',
+#                         'teachers': f'{teacher_count} teachers ({estimated_sizes["teachers"]}KB)',
+#                         'courses': f'{course_count} courses ({estimated_sizes["courses"]}KB)',
+#                         'blogs': f'{blog_count} blogs ({estimated_sizes["blogs"]}KB)',
+#                         'questions': f'{question_count} questions ({estimated_sizes["questions"]}KB)'
+#                     }
+#                 },
+#                 {
+#                     'name': 'Uptime',
+#                     'value': f'{uptime_days} days',
+#                     'trend': 'stable'
+#                 },
+#                 {
+#                     'name': 'Collections Summary',
+#                     'value': '',
+#                     'details': {
+#                         'total_users': user_count,
+#                         'total_teachers': teacher_count,
+#                         'total_courses': course_count,
+#                         'total_blogs': blog_count,
+#                         'total_questions': question_count
+#                     }
+#                 }
+#             ],
+#             'success': True
+#         })
+        
+#     except Exception as e:
+#         return JsonResponse({
+#             'error': str(e),
+#             'success': False
+#         }, status=500)
+
+def recent_activities(request):
+    try:
+        activities = []
+        
+        # 1. Recent user registrations (2 most recent)
+        recent_users = list(db.auth_user.find(
+            {"date_joined": {"$exists": True}}
+        ).sort("date_joined", -1).limit(2))
+        
+        for user in recent_users:
+            activities.append({
+                'action': 'New user registration',
+                'time': user['date_joined'].isoformat(),
+                'user': user.get('username', f"User {user['_id']}"),
+                'type': 'registration',
+                'icon': 'user-plus'
+            })
+        
+        # 2. Recent logins (2 most recent, requires last_login field)
+        recent_logins = list(db.auth_user.find(
+            {"last_login": {"$exists": True}}
+        ).sort("last_login", -1).limit(2))
+        
+        for user in recent_logins:
+            activities.append({
+                'action': 'User login',
+                'time': user['last_login'].isoformat(),
+                'user': user.get('username', f"User {user['_id']}"),
+                'type': 'login',
+                'icon': 'log-in',
+                'ip': user.get('last_login_ip', 'Unknown')  # Add this field in your login handler
+            })
+        
+        # 3. Recent course creations (2 most recent)
+        recent_courses = list(db.courses.find().sort("created_at", -1).limit(2))
+        for course in recent_courses:
+            # Try to get teacher name if available
+            teacher = db.auth_teachers.find_one(
+                {"_id": ObjectId(course['teacher_id'])},
+                {"username": 1}
+            ) if 'teacher_id' in course else None
+            
+            activities.append({
+                'action': 'New course created',
+                'time': course['created_at'].isoformat(),
+                'user': teacher['username'] if teacher else f"Teacher {course['teacher_id']}",
+                'type': 'course',
+                'icon': 'book',
+                'title': course.get('title', 'Untitled Course')
+            })
+        
+        # 4. Recent blog posts (2 most recent)
+        recent_blogs = list(db.blog.find().sort("created_at", -1).limit(2))
+        for blog in recent_blogs:
+            author = db.auth_user.find_one(
+                {"_id": ObjectId(blog['author_id'])},
+                {"username": 1}
+            ) if 'author_id' in blog else None
+            
+            activities.append({
+                'action': 'New blog post',
+                'time': blog['created_at'].isoformat(),
+                'user': author['username'] if author else f"Author {blog.get('author_id', 'Unknown')}",
+                'type': 'blog',
+                'icon': 'edit-3',
+                'title': blog.get('title', 'Untitled Post')
+            })
+        
+        # 5. Add more activity types as needed (question submissions, test results, etc.)
+        
+        # Sort all activities by time (newest first)
+        activities.sort(key=lambda x: x['time'], reverse=True)
+        
+        return JsonResponse({
+            'data': activities[:5],  # Return only the 5 most recent
+            'success': True
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'error': str(e),
+            'success': False
+        }, status=500)
 
 @api_view(['POST'])
 def create_blog(request):
@@ -1074,8 +1342,293 @@ def save_course_content(request, course_id):
 
 
 
+@api_view(['PUT'])
+def update_course_status(request, course_id):
+    """
+    Toggle the active status of a course (activate/deactivate)
+    """
+    try:
+        if not ObjectId.is_valid(course_id):
+            return Response(
+                {"error": "Invalid course ID"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
+        # Get current status to toggle
+        course = courses_collection.find_one({"_id": ObjectId(course_id)})
+        if not course:
+            return Response(
+                {"error": "Course not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
 
+        new_status = not course.get('is_active', True)
+
+        # Update only the is_active field
+        result = courses_collection.update_one(
+            {'_id': ObjectId(course_id)},
+            {
+                '$set': {
+                    'is_active': new_status,
+                    'updated_at': datetime.datetime.now()
+                }
+            }
+        )
+
+        if result.modified_count == 0:
+            return Response(
+                {"error": "No changes made"}, 
+                status=status.HTTP_304_NOT_MODIFIED
+            )
+
+        return Response(
+            {"message": f"Course {'activated' if new_status else 'deactivated'} successfully"},
+            status=status.HTTP_200_OK
+        )
+
+    except Exception as e:
+        return Response(
+            {"error": str(e)}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+@api_view(['DELETE'])
+def delete_course(request, course_id):
+    """
+    Soft delete course by moving to deleted_courses collection
+    """
+    try:
+        if not ObjectId.is_valid(course_id):
+            return Response(
+                {"error": "Invalid course ID"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Get course data before deletion
+        course = courses_collection.find_one({"_id": ObjectId(course_id)})
+        if not course:
+            return Response(
+                {"error": "Course not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Prepare deleted course document
+        deleted_course = {
+            "original_data": course,  # Store entire course document
+            "deleted_at": datetime.datetime.utcnow(),
+            "deleted_by": request.user.id if hasattr(request, 'user') else None,
+            "reason": request.data.get('reason', 'No reason provided')
+        }
+
+        # Insert into deleted collection
+        deleted_courses_collection.insert_one(deleted_course)
+
+        # Delete from main collection
+        courses_collection.delete_one({"_id": ObjectId(course_id)})
+
+        return Response(
+            {"message": "Course moved to archive"},
+            status=status.HTTP_200_OK
+        )
+
+    except Exception as e:
+        return Response(
+            {"error": str(e)}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+        
+        
+@api_view(['PUT'])
+def update_blog_status(request, blog_id):
+    """
+    Toggle the active status of a blog (activate/deactivate)
+    """
+    try:
+        if not ObjectId.is_valid(blog_id):
+            return Response(
+                {"error": "Invalid blog ID"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Get current status to toggle
+        blog = blog_collection.find_one({"_id": ObjectId(blog_id)})
+        if not blog:
+            return Response(
+                {"error": "Blog not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        new_status = not blog.get('is_active', True)
+
+        # Update only the is_active field
+        result = blog_collection.update_one(
+            {'_id': ObjectId(blog_id)},
+            {
+                '$set': {
+                    'is_active': new_status,
+                    'updated_at': datetime.datetime.now()
+                }
+            }
+        )
+
+        if result.modified_count == 0:
+            return Response(
+                {"error": "No changes made"}, 
+                status=status.HTTP_304_NOT_MODIFIED
+            )
+
+        return Response(
+            {"message": f"Blog {'activated' if new_status else 'deactivated'} successfully"},
+            status=status.HTTP_200_OK
+        )
+
+    except Exception as e:
+        return Response(
+            {"error": str(e)}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@api_view(['DELETE'])
+def delete_blog(request, blog_id):
+    """
+    Soft delete blog by moving to deleted_blogs collection
+    """
+    try:
+        if not ObjectId.is_valid(blog_id):
+            return Response(
+                {"error": "Invalid blog ID"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Get blog data before deletion
+        blog = blog_collection.find_one({"_id": ObjectId(blog_id)})
+        if not blog:
+            return Response(
+                {"error": "Blog not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Prepare deleted blog document
+        deleted_blog = {
+            "original_data": blog,  # Store entire blog document
+            "deleted_at": datetime.datetime.utcnow(),
+            "deleted_by": request.user.id if hasattr(request, 'user') else None,
+            "reason": request.data.get('reason', 'No reason provided')
+        }
+
+        # Insert into deleted collection
+        deleted_blogs_collection.insert_one(deleted_blog)
+
+        # Delete from main collection
+        blog_collection.delete_one({"_id": ObjectId(blog_id)})
+
+        return Response(
+            {"message": "Blog moved to archive"},
+            status=status.HTTP_200_OK
+        )
+
+    except Exception as e:
+        return Response(
+            {"error": str(e)}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+@api_view(['PUT'])
+def update_test_status(request, test_id):
+    """
+    Toggle the active status of a test (activate/deactivate)
+    """
+    try:
+        if not ObjectId.is_valid(test_id):
+            return Response(
+                {"error": "Invalid test ID"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Get current status to toggle
+        test =  questions_collection.find_one({"_id": ObjectId(test_id)})
+        if not test:
+            return Response(
+                {"error": "Test not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        new_status = not test.get('is_active', True)
+
+        # Update only the is_active field
+        result =  questions_collection.update_one(
+            {'_id': ObjectId(test_id)},
+            {
+                '$set': {
+                    'is_active': new_status,
+                    'updated_at': datetime.datetime.now()
+                }
+            }
+        )
+
+        if result.modified_count == 0:
+            return Response(
+                {"error": "No changes made"}, 
+                status=status.HTTP_304_NOT_MODIFIED
+            )
+
+        return Response(
+            {
+                "message": f"Test {'activated' if new_status else 'deactivated'} successfully",
+                "is_active": new_status
+            },
+            status=status.HTTP_200_OK
+        )
+
+    except Exception as e:
+        return Response(
+            {"error": str(e)}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
+
+@api_view(['DELETE'])
+def delete_test(request, test_id):
+    """
+    Soft delete test by moving to deleted_tests collection
+    """
+    try:
+        if not ObjectId.is_valid(test_id):
+            return Response(
+                {"error": "Invalid test ID"}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Get test data before deletion
+        test =  questions_collection.find_one({"_id": ObjectId(test_id)})
+        if not test:
+            return Response(
+                {"error": "Test not found"}, 
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Prepare deleted test document
+        deleted_test = {
+            "original_data": test,  # Store entire test document
+            "deleted_at": datetime.datetime.utcnow(),
+            "deleted_by": request.user.id if hasattr(request, 'user') else None,
+            "reason": request.data.get('reason', 'No reason provided'),
+            "test_type": test.get('type', 'assessment')  # Store test type for reference
+        }
+
+        # Insert into deleted collection
+        deleted_question_collection.insert_one(deleted_test)
+
+        # Delete from main collection
+        questions_collection.delete_one({"_id": ObjectId(test_id)})
+
+        return Response(
+            {"message": "Test moved to archive"},
+            status=status.HTTP_200_OK
+        )
+
+    except Exception as e:
+        return Response(
+            {"error": str(e)}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 @api_view(['POST'])
 
@@ -1132,38 +1685,52 @@ def assessment_details(request, assessment_id):
             status=status.HTTP_400_BAD_REQUEST
         )
         
-@api_view(["POST"])  
+from bson import ObjectId
+
+@api_view(["POST"])
 def test(request):
     try:
-        student_id = request.data.get('student_id')
         
-        # Get all assigned assessments
         assessments = list(questions_collection.find({"is_assigned": True}).sort("timestamp", -1))
         
-        # Filter out completed assessments if student_id provided
-        if student_id:
-            completed_ids = {
-                str(sub['test_id']) for sub in 
-                answers_collection.find({"student_id": ObjectId(student_id)})
-            }
-            assessments = [
-                assessment for assessment in assessments
-                if str(assessment['_id']) not in completed_ids
-            ]
+        # Get unique teacher IDs to avoid duplicate queries
+        unique_teacher_ids = list({ObjectId(assessment['teacher_id']) for assessment in assessments})
+       
         
-        # Convert ObjectId to string (maintaining original response format)
+        # Fetch teacher names for all unique teachers
+        teachers = list(teacher_collection.find(
+            {"_id": {"$in": unique_teacher_ids}},
+            {"first_name": 1, "last_name": 1},  
+        ))
+       
+        
+        # Create mapping with fallback for missing names
+        teacher_name_map = {}
+        for teacher in teachers:
+            teacher_id = str(teacher['_id'])
+            fname = teacher.get('first_name')  or 'Unknown Teacher'
+            lname= teacher.get('last_name', '')
+            name= f"{fname} {lname}".strip()
+            teacher_name_map[teacher_id] = name
+        
+        # Prepare response data
+        response_data = []
         for assessment in assessments:
-            assessment['_id'] = str(assessment['_id'])
+            assessment_data = {
+                **assessment,
+                '_id': str(assessment['_id']),
+                'teacher_name': teacher_name_map.get(assessment['teacher_id'], 'Unknown Teacher')
+            }
+            response_data.append(assessment_data)
         
-        return Response(assessments, status=status.HTTP_200_OK)
+        return Response(response_data, status=status.HTTP_200_OK)
         
     except Exception as e:
+        print("Error:", str(e))  # Add detailed error logging
         return Response(
             {'error': f'Failed to retrieve assessments: {str(e)}'}, 
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
-
-
 # views.py
 @api_view(["POST"])
 def completed_tests(request):
@@ -1340,7 +1907,7 @@ def submit_test(request):
     try:
         data = request.data
         
-        
+        # print(data, "data")
         # Validate required fields
         required_fields = ['testId', 'studentId', 'answers', 'timeSpent']
         for field in required_fields:
@@ -1357,6 +1924,7 @@ def submit_test(request):
         
         # Verify test exists
         test = questions_collection.find_one({"_id": ObjectId(test_id)})
+        
         if not test:
             return Response(
                 {'error': 'Test not found'},
@@ -1494,20 +2062,28 @@ def calculate_score(test, answers):
     questions_dict = test['questions']
     total_questions = len(questions_dict)
     ai_evaluated_questions = []
+    # print("caluclate")
 
     for question_id, student_answer in answers.items():
         question_data = questions_dict.get(str(question_id))
-        
+    
         if not question_data:
             continue
 
         # Check the type of question using `question_type` array
+        
         try:
             index = int(question_id) - 1
-            question_type = test.get("question_type", [])[index]
-        except (IndexError, ValueError):
+            question_type_list = test.get("question_type", [])
+            question_type = question_type_list[index] if index < len        (question_type_list) else ""
+
+            if question_type is None:
+                question_type = ""
+        except (IndexError, ValueError, TypeError):
+        
             question_type = ""
 
+        
         if question_type == "Short Answer":
             print("AI evaluation triggered for question:", question_id)
             evaluation = evaluate_with_gemini(
@@ -1559,7 +2135,11 @@ def login_react(request):
         
        
         
-
+        current_time = datetime.datetime.now()
+        users_collection.update_one(
+            {"_id": mongo_user["_id"]},
+            {"$set": {"last_login": current_time}}
+        )
        
 
         # Generate JWT Token

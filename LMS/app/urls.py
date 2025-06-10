@@ -62,6 +62,16 @@ urlpatterns = [
     path('api/create_blog/', views.create_blog), 
     path('api/viewblogs/<str:blog_id>/', views.get_blog_by_id, name='get_blog_by_id'),  # GET one blog by ID
     path('api/updateblogs/<str:blog_id>/', views.update_blog, name='update_blog'),
-    
+    path('api/courses/<str:course_id>/status/', views.update_course_status, name='update-course-status'),
+    path('api/courses/<str:course_id>/', views.delete_course, name='delete-course'),
+    path('api/blogs/<str:blog_id>/status/', views.update_blog_status, name='update-blog-status'),
+    path('api/blogs/<str:blog_id>/', views.delete_blog, name='delete-blog'),
+    path('api/tests/<str:test_id>/status/', views.update_test_status, name='update-test-status'),
+    path('api/tests/<str:test_id>/delete/', views.delete_test, name='delete-test'),
+     path('api/admin/dashboard/stats', views.admin_dashboard_stats, name='admin_dashboard_stats'),
+    path('api/admin/dashboard/user-growth', views.user_growth_data, name='user_growth_data'),
+    path('api/admin/dashboard/traffic-sources', views.traffic_sources, name='traffic_sources'),
+    path('api/admin/dashboard/system-status', views.system_status, name='system_status'),
+    path('api/admin/dashboard/recent-activities', views.recent_activities, name='recent_activities'),
 
 ]

@@ -11,7 +11,7 @@ from bson import ObjectId
 from datetime import datetime
 
 
-api_key = "AIzaSyAPu6-WHl506r8YuIZjE6uHLFQIm1gORC4"
+api_key = "AIzaSyD1OlTNgraVD0Mh_IsZF8EBYdAC0lwT5JY"
 genai.configure(api_key=api_key)
 model = genai.GenerativeModel("gemini-2.0-flash")
 chat_history = []
